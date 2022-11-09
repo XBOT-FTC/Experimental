@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="MD: Robot Centric (3231)", group="Linear Opmode")
-public class MecanumTeleOp3231 extends LinearOpMode {
+public class MechanumRobotCentric extends LinearOpMode {
 
     private final double ZERO_POWER = 0.0;
 
