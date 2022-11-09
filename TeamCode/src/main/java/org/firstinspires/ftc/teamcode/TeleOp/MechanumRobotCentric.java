@@ -33,9 +33,7 @@ public class MechanumRobotCentric extends LinearOpMode {
 
         // Additional functionality
         grabber = hardwareMap.servo.get("grabberServo");
-
         linearSlide = hardwareMap.dcMotor.get("linearSlide");
-        linearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         // Reverse the right side motors
         // Reverse left motors if you are using NeveRests
@@ -50,9 +48,8 @@ public class MechanumRobotCentric extends LinearOpMode {
 
         while (opModeIsActive()) {
             drive();
-            // use either one of the two
             slideTrigger();
-//            slideEncoderTarget();
+            slideEncoderTarget();
             grabber();
             telemetry.update();
         }
@@ -96,19 +93,7 @@ public class MechanumRobotCentric extends LinearOpMode {
                 motorBackLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition());
     }
 
-    // Using left and right bumper to move the slider at a fixed power
-    private void slideBumpers() {
-        double power = 0.5;
-        if (gamepad2.right_bumper) {
-            linearSlide.setPower(power);
-        } else if (gamepad2.left_bumper) {
-            linearSlide.setPower(-power);
-        } else {
-            linearSlide.setPower(ZERO_POWER);
-        }
-    }
-
-    // Using left and right trigger to move the slider based on power;
+    // Using left and right trigger to move the slider based on pressure:
     private void slideTrigger() {
         double constant = 1.0;
         double forwardPower = gamepad2.right_trigger * constant;
@@ -137,6 +122,7 @@ public class MechanumRobotCentric extends LinearOpMode {
         if (gamepad2.a || gamepad2.x || gamepad2.y) {
             // Stop and reset the encoders
             linearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            linearSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
             // Encoder settings
             int currentTicks = linearSlide.getCurrentPosition();
@@ -150,18 +136,26 @@ public class MechanumRobotCentric extends LinearOpMode {
                 linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
                 // Motor will run at the designated power until it reaches the position
-                double power = 0.25;
-                linearSlide.setPower(power);
+                double speed = 0.25;
+                linearSlide.setPower(speed);
 
                 // Wait until the motors stop.
                 while (linearSlide.isBusy()) {
                     telemetry.addData("Linear Slide Distance: ", linearSlide.getCurrentPosition());
+                    telemetry.addData("Target: ", linearSlide.getTargetPosition());
                     telemetry.update();
+                    // STOP COMMAND
+                    if (gamepad2.b) {
+                        // Reset encoders and set the mode back to run w/o encoders
+                        linearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                        linearSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        break;
+                    }
                     idle();
                 }
 
-                // Set power back to 0.0 since position is reached.
-                // TODO: need to find the power to counteract gravitational pull
+                // Set power back to zero since position is reached or broken out of.
+                // TODO: need to find the power to counteract gravitational pull?
                 linearSlide.setPower(ZERO_POWER);
             }
         }
@@ -174,6 +168,5 @@ public class MechanumRobotCentric extends LinearOpMode {
             grabber.setPosition(0.3);
         }
         telemetry.addData("Grabber Position: ", grabber.getPosition());
-        telemetry.update();
     }
 }
