@@ -15,10 +15,10 @@ public class MechanumFieldCentric extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         // Declare our motors
         // Make sure your ID's match your configuration
-        DcMotor motorFrontLeft = hardwareMap.dcMotor.get("motorFrontLeft");
-        DcMotor motorBackLeft = hardwareMap.dcMotor.get("motorBackLeft");
-        DcMotor motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
-        DcMotor motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
+        DcMotor motorFrontLeft = hardwareMap.dcMotor.get("frontLeft");
+        DcMotor motorBackLeft = hardwareMap.dcMotor.get("backLeft");
+        DcMotor motorFrontRight = hardwareMap.dcMotor.get("frontRight");
+        DcMotor motorBackRight = hardwareMap.dcMotor.get("backRight");
 
         // Reverse the right side motors
         // Reverse left motors if you are using NeveRests

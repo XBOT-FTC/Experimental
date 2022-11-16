@@ -99,10 +99,10 @@ public class AprilTagParking extends LinearOpMode {
         });
 
         // Initialize Drive Members and Motors
-        motorFrontLeft = hardwareMap.dcMotor.get("motorFrontLeft");
-        motorBackLeft = hardwareMap.dcMotor.get("motorBackLeft");
-        motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
-        motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
+        motorFrontLeft = hardwareMap.dcMotor.get("frontLeft");
+        motorBackLeft = hardwareMap.dcMotor.get("backLeft");
+        motorFrontRight = hardwareMap.dcMotor.get("frontRight");
+        motorBackRight = hardwareMap.dcMotor.get("backRight");
 
         // Reverse the right side motors
         // Reverse left motors if you are using NeveRests
