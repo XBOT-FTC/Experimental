@@ -35,7 +35,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
-@Autonomous(name= "Custom Sleeve Parking", group="Linear Opmode")
+@Autonomous(name= "Custom Sleeve Parking (20 pts)", group="Linear Opmode")
 public class AprilTagParking extends LinearOpMode {
 
     // Driver Members
