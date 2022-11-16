@@ -124,7 +124,7 @@ public class MecanumDriveStephanie extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Motors", "frontLeft (%.2f), frontRight (%.2f), backLeft (%.2f), backRight (%.2f)",
                     frontLeftPower, frontRightPower, backLeftPower, backRightPower);
-            telemetry.addData("Encoder Position","frontLeftE (%7d), frontRightE (%7d), backLeftE (%7d), backRightE (%7d)",
+            telemetry.addData("Encoder Position","fL (%7d), fR (%7d), bL (%7d), bR (%7d)",
                     frontLeftDrive.getCurrentPosition(), frontRightDrive.getCurrentPosition(), backLeftDrive.getCurrentPosition(), backRightDrive.getCurrentPosition());
             telemetry.update();
         }
