@@ -50,7 +50,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  */
 
 @TeleOp(name=" Mecanum Drive Mohamed", group="Linear Opmode")
-@Disabled
 public class MecanumDriveMohamed extends LinearOpMode {
 
     // Declare OpMode members.
@@ -67,10 +66,10 @@ public class MecanumDriveMohamed extends LinearOpMode {
                 // Initialize the variables to each motor
         telemetry.addData("Status","Initialization ");
         telemetry.update();
-        frontLeftDrive = hardwareMap.get(DcMotor.class,"frontLeftDrive");
-        frontRightDrive = hardwareMap.get(DcMotor.class,"frontRightDrive");
-        backLeftDrive = hardwareMap.get(DcMotor.class,"frontLeftDrive");
-        backLeftDrive = hardwareMap.get(DcMotor.class,"frontRightDrive");
+        frontLeftDrive = hardwareMap.get(DcMotor.class,"frontLeft");
+        frontRightDrive = hardwareMap.get(DcMotor.class,"frontRight");
+        backLeftDrive = hardwareMap.get(DcMotor.class,"backLeft");
+        backRightDrive = hardwareMap.get(DcMotor.class,"backRight");
                 // Telling the variable which action to perform
         frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
         frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
@@ -107,4 +106,4 @@ public class MecanumDriveMohamed extends LinearOpMode {
 
         }
     }
-}
+
