@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@Autonomous(name="Drive Forward", group="Testing")
+@Autonomous(name="Drive Forward (2 seconds)", group="Testing")
 public class DriveForward extends LinearOpMode {
 
     // Declare OpMode members
