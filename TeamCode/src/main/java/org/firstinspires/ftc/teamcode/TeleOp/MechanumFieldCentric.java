@@ -9,7 +9,13 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 //TODO: Work in progress!!
 @Disabled
-@TeleOp(name="MD: Field Centric (2939)", group="Linear Opmode")
+// TODO, something about this, it was:
+@TeleOp(name="MD: Field Centric (Mainline)", group="Linear Opmode")
+// <<<<<<< HEAD
+// @TeleOp(name="MD: Field Centric (2939)", group="Linear Opmode")
+// =======
+// @TeleOp(name="MD: Field Centric (3231)", group="Linear Opmode")
+// >>>>>>> 3231-mainline
 public class MechanumFieldCentric extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {

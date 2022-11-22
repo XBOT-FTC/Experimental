@@ -25,6 +25,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.openftc.apriltag.AprilTagDetection;
@@ -43,9 +44,12 @@ public class AprilTagParking extends LinearOpMode {
     private DcMotor motorFrontRight = null;
     private DcMotor motorBackRight = null;
 
+    private DcMotor linearSlide = null;
+    private Servo grabber = null;
+
     // TODO: EDIT after measuring
-        static final double TICKS_PER_INCH = 50;
-        static final double TICKS_PER_DEGREE = 50;
+    static final double TICKS_PER_INCH = 50;
+    static final double TICKS_PER_DEGREE = 50;
 
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
@@ -106,10 +110,23 @@ public class AprilTagParking extends LinearOpMode {
 
         // Reverse the right side motors
         // Reverse left motors if you are using NeveRests
+        //
+        // TODO: Make this configurable per robot.  What we have below is correct for 2939,
         motorFrontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        // whereas 3231 wants
+        // motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        // motorFrontRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        // motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        // motorBackRight.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        // Initialize Operator Members and Motors
+        grabber = hardwareMap.servo.get("grabberServo");
+
+        linearSlide = hardwareMap.dcMotor.get("linearSlide");
+        linearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         telemetry.setMsTransmissionInterval(50);
 
@@ -180,7 +197,7 @@ public class AprilTagParking extends LinearOpMode {
             // Move forward to Position #2 for the 1/3 chance it works.
             telemetry.addLine("Running Autonomous without tags");
             telemetry.update();
-            strafe(DIRECTION.LEFT, 6, 0.25);
+            moveLinear(DIRECTION.FORWARD, 16, 0.25);
         } else {
             /*
              * Insert your autonomous code here, probably using the tag pose to decide your configuration.
@@ -189,6 +206,7 @@ public class AprilTagParking extends LinearOpMode {
             // e.g.
             if (tagOfInterest.id == LEFT) {
                 // Drive to Position #1 (Left) w/ Encoders
+// TODO:  This is the version for 2939.
                 moveLinear(DIRECTION.FORWARD, 16, 0.25);
                 strafe(DIRECTION.LEFT, 26, 0.25);
             } else if (tagOfInterest.id == MIDDLE) {
