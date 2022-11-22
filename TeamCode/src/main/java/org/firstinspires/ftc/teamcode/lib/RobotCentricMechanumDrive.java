@@ -1,12 +1,19 @@
-package org.firstinspires.ftc.teamcode.TeleOp;
+package org.firstinspires.ftc.teamcode.lib;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
+import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name="MD: Robot Centric (2939)", group="Linear Opmode")
-public class MechanumRobotCentric extends LinearOpMode {
+// NOT a general-purpose MechanumDrive class.
+// Just an extraction of the stuff that's common to our robots, and a means of providing
+// the stuff that differs, to the constructop
+public class RobotCentricMechanumDrive {
+
+    private final double ZERO_POWER = 0.0;
 
     // Declare OpMode members
     private DcMotor motorFrontLeft = null;
@@ -14,9 +21,7 @@ public class MechanumRobotCentric extends LinearOpMode {
     private DcMotor motorFrontRight = null;
     private DcMotor motorBackRight = null;
 
-
-    @Override
-    public void runOpMode() throws InterruptedException {
+    public void RobotCentricMechanumDrive(Direction motorFrontLeftDirection) throws InterruptedException {
         // Declare our motors
         // Make sure your ID's match your configuration
         motorFrontLeft = hardwareMap.dcMotor.get("frontLeft");
@@ -26,30 +31,16 @@ public class MechanumRobotCentric extends LinearOpMode {
 
         // Reverse the right side motors
         // Reverse left motors if you are using NeveRests
-        motorFrontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorBackLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        // This works for both bots (2939 motorFrontLeftDirection == FORWARD, 3231 motorFrontLeftDirection == REVERSE)
+        motorFrontLeft.setDirection(motorFrontLeftDirection);
+        motorFrontRight.setDirection(motorFrontLeftDirection.inverted());
+        motorBackLeft.setDirection(motorFrontLeftDirection);
+        motorBackRight.setDirection(motorFrontLeftDirection.inverted());
 
-//        motorFrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        motorFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        motorBackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        motorBackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        waitForStart();
-        telemetry.addData("Actual", "%7d : %7d   %7d : %7d",
-                motorFrontLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition(),
-                motorBackLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition());
-        if (isStopRequested()) return;
-
-        while (opModeIsActive()) {
-            drive();
-            telemetry.update();
-        }
     }
 
     private void drive() {
-        double speedFactor = gamepad1.left_trigger * 2;
+        double speedFactor = gamepad1.left_trigger * 1;
         telemetry.addData("left_trigger (speedFactor): ", gamepad1.left_trigger);
 
         double y = -gamepad1.left_stick_y; // Remember, this is reversed!
@@ -65,6 +56,12 @@ public class MechanumRobotCentric extends LinearOpMode {
         double backLeftPower = (y - x + rx) / denominator;
         double frontRightPower = (y - x - rx) / denominator;
         double backRightPower = (y + x - rx) / denominator;
+
+        double limiter = 0.35;
+        frontLeftPower = Range.clip(frontLeftPower, -1 * limiter, limiter);
+        frontRightPower = Range.clip(frontRightPower, -1 * limiter, limiter);
+        backLeftPower = Range.clip(backLeftPower, -1 * limiter, limiter);
+        backRightPower = Range.clip(backRightPower, -1 * limiter, limiter);
 
         motorFrontLeft.setPower(frontLeftPower);
         motorBackLeft.setPower(backLeftPower);
@@ -83,4 +80,5 @@ public class MechanumRobotCentric extends LinearOpMode {
                 motorFrontLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition(),
                 motorBackLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition());
     }
+
 }
