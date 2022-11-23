@@ -3,112 +3,36 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
-// Was
-// <<<<<<< HEAD
-// @TeleOp(name="MD: Robot Centric (2939)", group="Linear Opmode")
-// =======
-// @TeleOp(name="MD: Robot Centric (3231)", group="Linear Opmode")
-@TeleOp(name="MD: Robot Centric (Mainline)", group="Linear Opmode")
-public class MechanumRobotCentric extends LinearOpMode {
+import org.firstinspires.ftc.teamcode.lib.RobotCentricMechanumDrive;
 
-    private final double ZERO_POWER = 0.0;
-
-    // Declare OpMode members
-    private DcMotor motorFrontLeft = null;
-    private DcMotor motorBackLeft = null;
-    private DcMotor motorFrontRight = null;
-    private DcMotor motorBackRight = null;
+@TeleOp(name="MD: Robot Centric (3231)", group="Linear Opmode")
+public class MechanumRobotCentric3231 extends LinearOpMode {
 
     private DcMotor linearSlide = null;
     private Servo grabber = null;
+    private final double ZERO_POWER = 0.0;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        // Declare our motors
-        // Make sure your ID's match your configuration
-        motorFrontLeft = hardwareMap.dcMotor.get("frontLeft");
-        motorBackLeft = hardwareMap.dcMotor.get("backLeft");
-        motorFrontRight = hardwareMap.dcMotor.get("frontRight");
-        motorBackRight = hardwareMap.dcMotor.get("backRight");
-
-        // Reverse the right side motors
-        // Reverse left motors if you are using NeveRests
-        motorFrontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorBackLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, Direction.REVERSE);
         // Additional functionality
         grabber = hardwareMap.servo.get("grabberServo");
         linearSlide = hardwareMap.dcMotor.get("linearSlide");
 
-        // Reverse the right side motors
-        // Reverse left motors if you are using NeveRests
-        // TODO, enable this for 3231
-        motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorFrontRight.setDirection(DcMotorSimple.Direction.FORWARD);
-        motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorBackRight.setDirection(DcMotorSimple.Direction.FORWARD);
-
         waitForStart();
-        telemetry.addData("Actual", "%7d : %7d   %7d : %7d",
-                motorFrontLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition(),
-                motorBackLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition());
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            drive();
+            drive.drive(gamepad1, telemetry);
             slideTrigger();
             slideEncoderTarget();
             grabber();
             telemetry.update();
         }
-    }
-
-    private void drive() {
-        double speedFactor = gamepad1.left_trigger * 1;
-        telemetry.addData("left_trigger (speedFactor): ", gamepad1.left_trigger);
-
-        double y = -gamepad1.left_stick_y; // Remember, this is reversed!
-        double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
-        double rx = gamepad1.right_stick_x;
-
-        // Denominator is the largest motor power (absolute value) or 1
-        // This ensures all the powers maintain the same ratio, but only when
-        // at least one is out of the range [-1, 1]
-        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-        denominator = denominator * (1 + speedFactor);
-        double frontLeftPower = (y + x + rx) / denominator;
-        double backLeftPower = (y - x + rx) / denominator;
-        double frontRightPower = (y - x - rx) / denominator;
-        double backRightPower = (y + x - rx) / denominator;
-
-        double limiter = 0.35;
-        frontLeftPower = Range.clip(frontLeftPower, -1 * limiter, limiter);
-        frontRightPower = Range.clip(frontRightPower, -1 * limiter, limiter);
-        backLeftPower = Range.clip(backLeftPower, -1 * limiter, limiter);
-        backRightPower = Range.clip(backRightPower, -1 * limiter, limiter);
-
-        motorFrontLeft.setPower(frontLeftPower);
-        motorBackLeft.setPower(backLeftPower);
-        motorFrontRight.setPower(frontRightPower);
-        motorBackRight.setPower(backRightPower);
-
-        telemetry.addData("Calculated Motor Power", "fL: %.3f - fR: %.3f - bL: %.3f - bR: %.3f",
-                frontLeftPower, frontRightPower,
-                backLeftPower, backRightPower);
-
-        telemetry.addData("Actual Motor Power", "fL: %.3f - fR: %.3f - bL: %.3f - bR: %.3f",
-                motorFrontLeft.getPower(), motorFrontRight.getPower(),
-                motorBackLeft.getPower(), motorFrontRight.getPower());
-
-        telemetry.addData("Encoder Values", "fL: %7d - fR: %7d - bL: %7d - bR: %7d",
-                motorFrontLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition(),
-                motorBackLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition());
     }
 
     // Using left and right trigger to move the slider based on pressure:
