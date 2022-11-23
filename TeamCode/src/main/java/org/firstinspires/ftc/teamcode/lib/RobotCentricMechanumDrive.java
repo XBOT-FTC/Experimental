@@ -4,9 +4,13 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
-import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 // NOT a general-purpose MechanumDrive class.
 // Just an extraction of the stuff that's common to our robots, and a means of providing
@@ -21,7 +25,7 @@ public class RobotCentricMechanumDrive {
     private DcMotor motorFrontRight = null;
     private DcMotor motorBackRight = null;
 
-    public void RobotCentricMechanumDrive(Direction motorFrontLeftDirection) throws InterruptedException {
+    public RobotCentricMechanumDrive(HardwareMap hardwareMap, Direction motorFrontLeftDirection) throws InterruptedException {
         // Declare our motors
         // Make sure your ID's match your configuration
         motorFrontLeft = hardwareMap.dcMotor.get("frontLeft");
@@ -39,13 +43,13 @@ public class RobotCentricMechanumDrive {
 
     }
 
-    private void drive() {
-        double speedFactor = gamepad1.left_trigger * 1;
-        telemetry.addData("left_trigger (speedFactor): ", gamepad1.left_trigger);
+    public void drive(Gamepad gamepad, Telemetry telemetry) {
+        double speedFactor = gamepad.left_trigger * 1;
+        telemetry.addData("left_trigger (speedFactor): ", gamepad.left_trigger);
 
-        double y = -gamepad1.left_stick_y; // Remember, this is reversed!
-        double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
-        double rx = gamepad1.right_stick_x;
+        double y = -gamepad.left_stick_y; // Remember, this is reversed!
+        double x = gamepad.left_stick_x * 1.1; // Counteract imperfect strafing
+        double rx = gamepad.right_stick_x;
 
         // Denominator is the largest motor power (absolute value) or 1
         // This ensures all the powers maintain the same ratio, but only when
@@ -67,6 +71,10 @@ public class RobotCentricMechanumDrive {
         motorBackLeft.setPower(backLeftPower);
         motorFrontRight.setPower(frontRightPower);
         motorBackRight.setPower(backRightPower);
+
+        telemetry.addData("Actual", "%7d : %7d   %7d : %7d",
+                motorFrontLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition(),
+                motorBackLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition());
 
         telemetry.addData("Calculated Motor Power", "fL: %.3f - fR: %.3f - bL: %.3f - bR: %.3f",
                 frontLeftPower, frontRightPower,

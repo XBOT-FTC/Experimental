@@ -2,29 +2,23 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
+
+import org.firstinspires.ftc.teamcode.lib.RobotCentricMechanumDrive;
+
 
 @TeleOp(name="MD: Robot Centric (2939)", group="Linear Opmode")
 public class MechanumRobotCentric2939 extends LinearOpMode {
 
-    private RobotCentricMechanumDrive drive = null;
-
     @Override
     public void runOpMode() throws InterruptedException {
-        drive = RobotCentricMechanumDrive(DcMotorSimple.Direction.FORWARD);
-        // Additional functionality
-
+        RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, Direction.FORWARD);
         waitForStart();
-        telemetry.addData("Actual", "%7d : %7d   %7d : %7d",
-                motorFrontLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition(),
-                motorBackLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition());
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            drive();
+            drive.drive(gamepad1, telemetry);
             telemetry.update();
         }
     }

@@ -3,32 +3,31 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.teamcode.lib.RobotCentricMechanumDrive;
 
 @TeleOp(name="MD: Robot Centric (3231)", group="Linear Opmode")
 public class MechanumRobotCentric3231 extends LinearOpMode {
 
-    private RobotCentricMechanumDrive drive = null;
     private DcMotor linearSlide = null;
     private Servo grabber = null;
+    private final double ZERO_POWER = 0.0;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        drive = RobotCentricMechanumDrive(DcMotorSimple.Direction.FORWARD);
+        RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, Direction.REVERSE);
         // Additional functionality
         grabber = hardwareMap.servo.get("grabberServo");
         linearSlide = hardwareMap.dcMotor.get("linearSlide");
 
         waitForStart();
-        telemetry.addData("Actual", "%7d : %7d   %7d : %7d",
-                motorFrontLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition(),
-                motorBackLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition());
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            drive();
+            drive.drive(gamepad1, telemetry);
             slideTrigger();
             slideEncoderTarget();
             grabber();
