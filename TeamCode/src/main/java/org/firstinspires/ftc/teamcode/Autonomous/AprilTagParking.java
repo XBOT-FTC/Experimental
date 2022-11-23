@@ -21,17 +21,28 @@
 
 package org.firstinspires.ftc.teamcode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.RobotConstants;
+import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.FORWARD;
+import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.BACKWARD;
+import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.LEFT_STRAFE;
+import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.RIGHT_STRAFE;
+import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.LEFT_TURN;
+import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.RIGHT_TURN;
+
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.robot.Robot;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
+
 
 import java.util.ArrayList;
 
@@ -44,6 +55,7 @@ public class AprilTagParking extends LinearOpMode {
     private DcMotor motorFrontRight = null;
     private DcMotor motorBackRight = null;
 
+
     private DcMotor linearSlide = null;
     private Servo grabber = null;
 
@@ -55,15 +67,6 @@ public class AprilTagParking extends LinearOpMode {
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
     static final double FEET_PER_METER = 3.28084;
-
-    enum DIRECTION {
-        FORWARD,
-        BACKWARD,
-        LEFT,
-        RIGHT,
-        LEFT_TURN,
-        RIGHT_TURN
-    }
 
     // Lens intrinsics
     // UNITS ARE PIXELS
@@ -197,7 +200,7 @@ public class AprilTagParking extends LinearOpMode {
             // Move forward to Position #2 for the 1/3 chance it works.
             telemetry.addLine("Running Autonomous without tags");
             telemetry.update();
-            moveLinear(DIRECTION.FORWARD, 16, 0.25);
+            moveLinear(FORWARD, 16, 0.25);
         } else {
             /*
              * Insert your autonomous code here, probably using the tag pose to decide your configuration.
@@ -206,19 +209,19 @@ public class AprilTagParking extends LinearOpMode {
             // e.g.
             if (tagOfInterest.id == LEFT) {
                 // Drive to Position #1 (Left) w/ Encoders
-// TODO:  This is the version for 2939.
-                moveLinear(DIRECTION.FORWARD, 16, 0.25);
-                strafe(DIRECTION.LEFT, 26, 0.25);
+            // TODO:  This is the version for 2939.
+                moveLinear(FORWARD, 16, 0.25);
+                strafe(LEFT_STRAFE, 26, 0.25);
             } else if (tagOfInterest.id == MIDDLE) {
                 // Drive to Position #2 (Middle) w/ Encoders
-                moveLinear(DIRECTION.FORWARD, 16, 0.25);
+                moveLinear(FORWARD, 16, 0.25);
             } else if (tagOfInterest.id == RIGHT) {
                 // Drive to Position #3 (Right) w/ Encoders
-                moveLinear(DIRECTION.FORWARD, 16, 0.25);
-                strafe(DIRECTION.RIGHT, 26, 0.25);
+                moveLinear(FORWARD, 16, 0.25);
+                strafe(RIGHT_STRAFE, 26, 0.25);
             } else {
                 // Somehow we got another tag.. Drive to Position #2 (Middle) w/ one third chance.
-                moveLinear(DIRECTION.FORWARD, 16, 0.25);
+                moveLinear(FORWARD, 16, 0.25);
             }
         }
     }
@@ -234,10 +237,9 @@ public class AprilTagParking extends LinearOpMode {
     }
 
     // Negative speed = moveBackwards
-    void moveLinear(DIRECTION direction, int inches, double speed) {
-        if (direction == DIRECTION.FORWARD) {
-            // Do nothing
-        } else if (direction == DIRECTION.BACKWARD) {
+    void moveLinear(RobotConstants.Commands.DRIVE driveCommand, int inches, double speed) {
+        if (driveCommand == FORWARD) {
+        } else if (driveCommand == BACKWARD) {
             speed *= -1;
         } else {
             throw new IllegalArgumentException();
@@ -299,11 +301,11 @@ public class AprilTagParking extends LinearOpMode {
     }
 
     // Negative speed = strafeRight
-    void strafe(DIRECTION direction, int inches, double speed) {
-        if (direction == DIRECTION.LEFT) {
+    void strafe(RobotConstants.Commands.DRIVE driveCommand, int inches, double speed) {
+        if (driveCommand == LEFT_STRAFE) {
+        } else if (driveCommand == RIGHT_STRAFE) {
             inches *= -1;
-        } else if (direction == DIRECTION.RIGHT) {
-            //            speed *= -1;
+            speed *= -1;
         } else {
             throw new IllegalArgumentException();
         }
@@ -354,10 +356,10 @@ public class AprilTagParking extends LinearOpMode {
     }
 
     // TODO: NEEDS TESTING
-    void turn(DIRECTION direction, int angle, double speed) {
-        if (direction == DIRECTION.RIGHT_TURN) {
+    void turn(RobotConstants.Commands.DRIVE driveCommand, int angle, double speed) {
+        if (driveCommand == RIGHT_TURN) {
             // Do nothing
-        } else if (direction == DIRECTION.LEFT_TURN) {
+        } else if (driveCommand == LEFT_TURN) {
             speed *= -1;
         } else {
             throw new IllegalArgumentException();
@@ -414,18 +416,19 @@ public class AprilTagParking extends LinearOpMode {
         telemetry.update();
     }
 
-    void moveLinearNonEncoder(DIRECTION direction, double seconds, double speed){
-        motorFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        if (direction == DIRECTION.FORWARD) {
+    void moveLinearNonEncoder(RobotConstants.Commands.DRIVE driveCommand, double seconds, double speed){
+        if (driveCommand == FORWARD) {
             // Do nothing
-        } else if (direction == DIRECTION.BACKWARD) {
+        } else if (driveCommand == BACKWARD) {
             speed *= -1;
         } else {
             throw new IllegalArgumentException();
         }
+        motorFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         motorFrontLeft.setPower(speed);
         motorFrontRight.setPower(speed);
         motorBackLeft.setPower(speed);
@@ -437,17 +440,13 @@ public class AprilTagParking extends LinearOpMode {
         motorBackRight.setPower(0);
     }
 
-    void strafeNonEncoder(DIRECTION direction, double seconds, double speed) {
-        motorFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        if (direction == DIRECTION.LEFT) {
+    void strafeNonEncoder(RobotConstants.Commands.DRIVE driveCommand, double seconds, double speed) {
+        if (driveCommand == LEFT_STRAFE) {
             motorFrontLeft.setPower(speed);
             motorFrontRight.setPower(-1 * speed);
             motorBackLeft.setPower(speed);
             motorBackRight.setPower(-1 * speed);
-        } else if (direction == DIRECTION.RIGHT) {
+        } else if (driveCommand == RIGHT_STRAFE) {
             motorFrontLeft.setPower(-1 * speed);
             motorFrontRight.setPower(speed);
             motorBackLeft.setPower(-1 * speed);
@@ -455,6 +454,11 @@ public class AprilTagParking extends LinearOpMode {
         } else {
             throw new IllegalArgumentException();
         }
+
+        motorFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         sleep((long) (seconds * 1000));
         motorFrontLeft.setPower(0);
         motorFrontRight.setPower(0);
