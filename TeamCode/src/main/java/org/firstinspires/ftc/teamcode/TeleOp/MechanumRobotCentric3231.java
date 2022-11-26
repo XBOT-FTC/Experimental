@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.lib.Grabber;
+import org.firstinspires.ftc.teamcode.RobotConstants;
 import org.firstinspires.ftc.teamcode.lib.RobotCentricMechanumDrive;
 import org.firstinspires.ftc.teamcode.lib.LinearSlider;
 
@@ -17,8 +18,9 @@ public class MechanumRobotCentric3231 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, Direction.REVERSE);
-        LinearSlider slider = new LinearSlider(hardwareMap.dcMotor.get("linearSlide"));
-        Grabber grabber = new Grabber(hardwareMap.servo.get("grabberServo"));
+        LinearSlider slider = new LinearSlider(hardwareMap.dcMotor.get(RobotConstants.SLIDE));
+        // Additional functionality
+        Servo grabber = hardwareMap.servo.get(RobotConstants.GRABBER);
 
         waitForStart();
         if (isStopRequested()) return;
