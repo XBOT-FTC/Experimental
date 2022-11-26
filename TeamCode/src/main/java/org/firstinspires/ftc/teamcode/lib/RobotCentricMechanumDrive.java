@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.RobotConstants;
 
 // NOT a general-purpose MechanumDrive class.
 // Just an extraction of the stuff that's common to our robots, and a means of providing
@@ -28,10 +29,10 @@ public class RobotCentricMechanumDrive {
     public RobotCentricMechanumDrive(HardwareMap hardwareMap, Direction motorFrontLeftDirection) throws InterruptedException {
         // Declare our motors
         // Make sure your ID's match your configuration
-        motorFrontLeft = hardwareMap.dcMotor.get("frontLeft");
-        motorBackLeft = hardwareMap.dcMotor.get("backLeft");
-        motorFrontRight = hardwareMap.dcMotor.get("frontRight");
-        motorBackRight = hardwareMap.dcMotor.get("backRight");
+        motorFrontLeft = hardwareMap.dcMotor.get(RobotConstants.FRONT_LEFT);
+        motorBackLeft = hardwareMap.dcMotor.get(RobotConstants.BACK_LEFT);
+        motorFrontRight = hardwareMap.dcMotor.get(RobotConstants.FRONT_RIGHT);
+        motorBackRight = hardwareMap.dcMotor.get(RobotConstants.BACK_RIGHT);
 
         // Reverse the right side motors
         // Reverse left motors if you are using NeveRests
