@@ -38,6 +38,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.robot.Robot;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.lib.LinearSlider;
+import org.firstinspires.ftc.teamcode.lib.RobotCentricMechanumDrive;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -48,16 +50,6 @@ import java.util.ArrayList;
 
 @Autonomous(name= "Custom Sleeve Parking (20 pts)", group="Linear Opmode")
 public class AprilTagParking extends LinearOpMode {
-
-    // Driver Members
-    private DcMotor motorFrontLeft = null;
-    private DcMotor motorBackLeft = null;
-    private DcMotor motorFrontRight = null;
-    private DcMotor motorBackRight = null;
-
-
-    private DcMotor linearSlide = null;
-    private Servo grabber = null;
 
     // TODO: EDIT after measuring
     static final double TICKS_PER_INCH = 50;
@@ -87,7 +79,7 @@ public class AprilTagParking extends LinearOpMode {
     AprilTagDetection tagOfInterest = null;
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
@@ -105,31 +97,16 @@ public class AprilTagParking extends LinearOpMode {
             }
         });
 
-        // Initialize Drive Members and Motors
-        motorFrontLeft = hardwareMap.dcMotor.get("frontLeft");
-        motorBackLeft = hardwareMap.dcMotor.get("backLeft");
-        motorFrontRight = hardwareMap.dcMotor.get("frontRight");
-        motorBackRight = hardwareMap.dcMotor.get("backRight");
+        // Initialize the robot
+        RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, DcMotorSimple.Direction.FORWARD);
 
-        // Reverse the right side motors
-        // Reverse left motors if you are using NeveRests
-        //
-        // TODO: Make this configurable per robot.  What we have below is correct for 2939,
-        motorFrontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorBackLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
         // whereas 3231 wants
-        // motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        // motorFrontRight.setDirection(DcMotorSimple.Direction.FORWARD);
-        // motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        // motorBackRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        // RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, DcMotorSimple.Direction.REVERSE);
 
         // Initialize Operator Members and Motors
-        grabber = hardwareMap.servo.get("grabberServo");
-
-        linearSlide = hardwareMap.dcMotor.get("linearSlide");
-        linearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Servo grabber = hardwareMap.servo.get(RobotConstants.GRABBER);
+        LinearSlider slider = new LinearSlider(hardwareMap.dcMotor.get(RobotConstants.SLIDE));
+        // TODO: linearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         telemetry.setMsTransmissionInterval(50);
 
@@ -149,7 +126,6 @@ public class AprilTagParking extends LinearOpMode {
                     tagToTelemetry(tagOfInterest);
                 } else {
                     telemetry.addLine("Don't see tag of interest :(");
-
                     if (tagOfInterest == null) {
                         telemetry.addLine("(The tag has never been seen)");
                     } else {
@@ -160,7 +136,6 @@ public class AprilTagParking extends LinearOpMode {
 
             } else {
                 telemetry.addLine("Don't see tag of interest :(");
-
                 if (tagOfInterest == null) {
                     telemetry.addLine("(The tag has never been seen)");
                 } else {
@@ -200,7 +175,7 @@ public class AprilTagParking extends LinearOpMode {
             // Move forward to Position #2 for the 1/3 chance it works.
             telemetry.addLine("Running Autonomous without tags");
             telemetry.update();
-            moveLinear(FORWARD, 16, 0.25);
+            drive.moveLinear(FORWARD, 16, 0.25, telemetry);
         } else {
             /*
              * Insert your autonomous code here, probably using the tag pose to decide your configuration.
@@ -210,18 +185,18 @@ public class AprilTagParking extends LinearOpMode {
             if (tagOfInterest.id == LEFT) {
                 // Drive to Position #1 (Left) w/ Encoders
             // TODO:  This is the version for 2939.
-                moveLinear(FORWARD, 16, 0.25);
-                strafe(LEFT_STRAFE, 26, 0.25);
+                drive.moveLinear(FORWARD, 16, 0.25, telemetry);
+                drive.strafe(LEFT_STRAFE, 26, 0.25, telemetry);
             } else if (tagOfInterest.id == MIDDLE) {
                 // Drive to Position #2 (Middle) w/ Encoders
-                moveLinear(FORWARD, 16, 0.25);
+                drive.moveLinear(FORWARD, 16, 0.25, telemetry);
             } else if (tagOfInterest.id == RIGHT) {
                 // Drive to Position #3 (Right) w/ Encoders
-                moveLinear(FORWARD, 16, 0.25);
-                strafe(RIGHT_STRAFE, 26, 0.25);
+                drive.moveLinear(FORWARD, 16, 0.25, telemetry);
+                drive.strafe(RIGHT_STRAFE, 26, 0.25, telemetry);
             } else {
                 // Somehow we got another tag.. Drive to Position #2 (Middle) w/ one third chance.
-                moveLinear(FORWARD, 16, 0.25);
+                drive.moveLinear(FORWARD, 16, 0.25, telemetry);
             }
         }
     }
@@ -234,235 +209,5 @@ public class AprilTagParking extends LinearOpMode {
         telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", Math.toDegrees(detection.pose.yaw)));
         telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", Math.toDegrees(detection.pose.pitch)));
         telemetry.addLine(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
-    }
-
-    // Negative speed = moveBackwards
-    void moveLinear(RobotConstants.Commands.DRIVE driveCommand, int inches, double speed) {
-        if (driveCommand == FORWARD) {
-        } else if (driveCommand == BACKWARD) {
-            speed *= -1;
-        } else {
-            throw new IllegalArgumentException();
-        }
-
-        // Set Drive to run with encoders.
-        motorFrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorBackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorBackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        motorFrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorBackLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorFrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorBackRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        // Retrieve the current position for each motor
-        int frontLeftPos, frontRightPos, backLeftPos, backRightPos;
-        frontLeftPos = motorFrontLeft.getCurrentPosition();
-        frontRightPos = motorFrontRight.getCurrentPosition();
-        backLeftPos = motorBackLeft.getCurrentPosition();
-        backRightPos = motorBackRight.getCurrentPosition();
-
-        // Calculate the ticks to be reached
-        frontLeftPos += inches * TICKS_PER_INCH;
-        frontRightPos += inches * TICKS_PER_INCH;
-        backLeftPos += inches * TICKS_PER_INCH;
-        backRightPos += inches * TICKS_PER_INCH;
-
-        // Set the goal and power to the motors
-        motorFrontLeft.setTargetPosition(frontLeftPos);
-        motorFrontRight.setTargetPosition(frontRightPos);
-        motorBackLeft.setTargetPosition(backLeftPos);
-        motorBackRight.setTargetPosition(backRightPos);
-
-        motorFrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorFrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBackLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBackRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        motorFrontLeft.setPower(speed);
-        motorFrontRight.setPower(speed);
-        motorBackLeft.setPower(speed);
-        motorBackRight.setPower(speed);
-
-        // Wait for encoders to complete it's routine
-        while (motorFrontLeft.isBusy() && motorFrontRight.isBusy() &&
-                motorBackLeft.isBusy() && motorBackRight.isBusy()) {
-            // Display Telemetry Data
-            telemetry.addLine("Moving Linearly");
-            updateEncoderTelemetry(frontLeftPos, frontRightPos, backLeftPos, backRightPos);
-        }
-
-        // Once completed, stop all motors:
-        motorFrontLeft.setPower(0);
-        motorFrontRight.setPower(0);
-        motorBackLeft.setPower(0);
-        motorBackRight.setPower(0);
-    }
-
-    // Negative speed = strafeRight
-    void strafe(RobotConstants.Commands.DRIVE driveCommand, int inches, double speed) {
-        if (driveCommand == LEFT_STRAFE) {
-        } else if (driveCommand == RIGHT_STRAFE) {
-            inches *= -1;
-            speed *= -1;
-        } else {
-            throw new IllegalArgumentException();
-        }
-
-        // Retrieve the current position for each motor
-        int frontLeftPos, frontRightPos, backLeftPos, backRightPos;
-        frontLeftPos = motorFrontLeft.getCurrentPosition();
-        frontRightPos = motorFrontRight.getCurrentPosition();
-        backLeftPos = motorBackLeft.getCurrentPosition();
-        backRightPos = motorBackRight.getCurrentPosition();
-
-        // Calculate the ticks to be reached
-        frontLeftPos -= inches * TICKS_PER_INCH;
-        frontRightPos += inches * TICKS_PER_INCH;
-        backLeftPos += inches * TICKS_PER_INCH;
-        backRightPos -= inches * TICKS_PER_INCH;
-
-        // Set the goal and power to the motors
-        motorFrontLeft.setTargetPosition(frontLeftPos);
-        motorFrontRight.setTargetPosition(frontRightPos);
-        motorBackLeft.setTargetPosition(backLeftPos);
-        motorBackRight.setTargetPosition(backRightPos);
-
-        motorFrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorFrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBackLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBackRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        motorFrontLeft.setPower(speed);
-        motorFrontRight.setPower(speed);
-        motorBackLeft.setPower(speed);
-        motorBackRight.setPower(speed);
-
-        // Wait for encoders to complete it's routine
-        while (motorFrontLeft.isBusy() && motorFrontRight.isBusy() &&
-                motorBackLeft.isBusy() && motorBackRight.isBusy()) {
-            // Display Telemetry Data
-            // Display Telemetry Data
-            telemetry.addLine("Strafing");
-            updateEncoderTelemetry(frontLeftPos, frontRightPos, backLeftPos, backRightPos);
-        }
-
-        // Once completed, stop all motors:
-        motorFrontLeft.setPower(0);
-        motorFrontRight.setPower(0);
-        motorBackLeft.setPower(0);
-        motorBackRight.setPower(0);
-    }
-
-    // TODO: NEEDS TESTING
-    void turn(RobotConstants.Commands.DRIVE driveCommand, int angle, double speed) {
-        if (driveCommand == RIGHT_TURN) {
-            // Do nothing
-        } else if (driveCommand == LEFT_TURN) {
-            speed *= -1;
-        } else {
-            throw new IllegalArgumentException();
-        }
-        int frontLeftPos, frontRightPos, backLeftPos, backRightPos;
-        frontLeftPos = motorFrontLeft.getCurrentPosition();
-        frontRightPos = motorFrontRight.getCurrentPosition();
-        backLeftPos = motorBackLeft.getCurrentPosition();
-        backRightPos = motorBackRight.getCurrentPosition();
-
-        frontLeftPos += angle * TICKS_PER_DEGREE;
-        frontRightPos -= angle * TICKS_PER_DEGREE;
-        backLeftPos += angle * TICKS_PER_DEGREE;
-        backRightPos -= angle * TICKS_PER_DEGREE;
-
-        // Set the goal and power to the motors
-        motorFrontLeft.setTargetPosition(frontLeftPos);
-        motorFrontRight.setTargetPosition(frontRightPos);
-        motorBackLeft.setTargetPosition(backLeftPos);
-        motorBackRight.setTargetPosition(backRightPos);
-
-        motorFrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorFrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBackLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorBackRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        motorFrontLeft.setPower(speed);
-        motorFrontRight.setPower(speed);
-        motorBackLeft.setPower(speed);
-        motorBackRight.setPower(speed);
-
-        // Wait for encoders to complete it's routine
-        while (motorFrontLeft.isBusy() && motorFrontRight.isBusy() &&
-                motorBackLeft.isBusy() && motorBackRight.isBusy()) {
-            // Display Telemetry Data
-            telemetry.addLine("Turning");
-            updateEncoderTelemetry(frontLeftPos, frontRightPos, backLeftPos, backRightPos);
-        }
-
-        // Once completed, stop all motors:
-        motorFrontLeft.setPower(0);
-        motorFrontRight.setPower(0);
-        motorBackLeft.setPower(0);
-        motorBackRight.setPower(0);
-    }
-
-    void updateEncoderTelemetry(int targetFL, int targetFR, int targetBL, int targetBR) {
-        telemetry.addData("Front Target", "%7d : %7d", targetFL, targetFR);
-        telemetry.addData("Rear Target", "%7d : %7d", targetBL, targetBR);
-        telemetry.addData("Front Actual", "%7d : %7d",
-                motorFrontLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition());
-        telemetry.addData("Rear Actual", "%7d : %7d",
-                motorBackLeft.getCurrentPosition(), motorBackRight.getCurrentPosition());
-        telemetry.update();
-    }
-
-    void moveLinearNonEncoder(RobotConstants.Commands.DRIVE driveCommand, double seconds, double speed){
-        if (driveCommand == FORWARD) {
-            // Do nothing
-        } else if (driveCommand == BACKWARD) {
-            speed *= -1;
-        } else {
-            throw new IllegalArgumentException();
-        }
-        motorFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        motorFrontLeft.setPower(speed);
-        motorFrontRight.setPower(speed);
-        motorBackLeft.setPower(speed);
-        motorBackRight.setPower(speed);
-        sleep((long) (seconds * 1000));
-        motorFrontLeft.setPower(0);
-        motorFrontRight.setPower(0);
-        motorBackLeft.setPower(0);
-        motorBackRight.setPower(0);
-    }
-
-    void strafeNonEncoder(RobotConstants.Commands.DRIVE driveCommand, double seconds, double speed) {
-        if (driveCommand == LEFT_STRAFE) {
-            motorFrontLeft.setPower(speed);
-            motorFrontRight.setPower(-1 * speed);
-            motorBackLeft.setPower(speed);
-            motorBackRight.setPower(-1 * speed);
-        } else if (driveCommand == RIGHT_STRAFE) {
-            motorFrontLeft.setPower(-1 * speed);
-            motorFrontRight.setPower(speed);
-            motorBackLeft.setPower(-1 * speed);
-            motorBackRight.setPower(speed);
-        } else {
-            throw new IllegalArgumentException();
-        }
-
-        motorFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        sleep((long) (seconds * 1000));
-        motorFrontLeft.setPower(0);
-        motorFrontRight.setPower(0);
-        motorBackLeft.setPower(0);
-        motorBackRight.setPower(0);
     }
 }

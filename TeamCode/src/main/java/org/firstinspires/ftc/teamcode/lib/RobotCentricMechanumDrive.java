@@ -1,5 +1,12 @@
 package org.firstinspires.ftc.teamcode.lib;
 
+import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.BACKWARD;
+import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.FORWARD;
+import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.LEFT_STRAFE;
+import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.LEFT_TURN;
+import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.RIGHT_STRAFE;
+import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.RIGHT_TURN;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -25,6 +32,10 @@ public class RobotCentricMechanumDrive {
     private DcMotor motorBackLeft = null;
     private DcMotor motorFrontRight = null;
     private DcMotor motorBackRight = null;
+
+    // Ticks measurement
+    private int TICKS_PER_INCH;
+    private int TICKS_PER_DEGREE;
 
     public RobotCentricMechanumDrive(HardwareMap hardwareMap, Direction motorFrontLeftDirection) throws InterruptedException {
         // Declare our motors
@@ -90,4 +101,191 @@ public class RobotCentricMechanumDrive {
                 motorBackLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition());
     }
 
+    public void setTicks(int perInch, int perDegree) {
+        this.TICKS_PER_INCH = perInch;
+        this.TICKS_PER_DEGREE = perDegree;
+    }
+
+    public void setSpeed(double fL, double fR, double bL, double bR) {
+        this.motorFrontLeft.setPower(fL);
+        this.motorFrontRight.setPower(fR);
+        this.motorFrontLeft.setPower(bL);
+        this.motorFrontLeft.setPower(bR);
+    }
+
+    public void setModeWithEncoders() {
+        // Set Drive to run with encoders.
+        motorFrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        motorFrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorBackLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorFrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorBackRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public void setModeWithoutEncoders() {
+        motorFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    public void updateEncoderTarget(RobotConstants.Commands.DRIVE command, int inches, int angle) {
+        // Retrieve the current position for each motor
+        setModeWithEncoders();
+        int frontLeftPos, frontRightPos, backLeftPos, backRightPos;
+        frontLeftPos = motorFrontLeft.getCurrentPosition();
+        frontRightPos = motorFrontRight.getCurrentPosition();
+        backLeftPos = motorBackLeft.getCurrentPosition();
+        backRightPos = motorBackRight.getCurrentPosition();
+
+        if (command == FORWARD || command == BACKWARD) {
+            // Calculate the ticks to be reached
+            frontLeftPos += inches * TICKS_PER_INCH;
+            frontRightPos += inches * TICKS_PER_INCH;
+            backLeftPos += inches * TICKS_PER_INCH;
+            backRightPos += inches * TICKS_PER_INCH;
+        } else if (command == LEFT_STRAFE || command == RIGHT_STRAFE) {
+            // Calculate the ticks to be reached
+            frontLeftPos -= inches * TICKS_PER_INCH;
+            frontRightPos += inches * TICKS_PER_INCH;
+            backLeftPos += inches * TICKS_PER_INCH;
+            backRightPos -= inches * TICKS_PER_INCH;
+        } else if (command == LEFT_TURN || command == RIGHT_TURN) {
+            frontLeftPos += angle * TICKS_PER_DEGREE;
+            frontRightPos -= angle * TICKS_PER_DEGREE;
+            backLeftPos += angle * TICKS_PER_DEGREE;
+            backRightPos -= angle * TICKS_PER_DEGREE;
+        }
+
+        // Set the goal and power to the motors
+        motorFrontLeft.setTargetPosition(frontLeftPos);
+        motorFrontRight.setTargetPosition(frontRightPos);
+        motorBackLeft.setTargetPosition(backLeftPos);
+        motorBackRight.setTargetPosition(backRightPos);
+
+        motorFrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorFrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBackLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorBackRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+
+    // Negative speed = moveBackwards
+    public void moveLinear(RobotConstants.Commands.DRIVE driveCommand, int inches, double speed, Telemetry telemetry) {
+        if (driveCommand == FORWARD) {
+            inches *= 1;
+        } else if (driveCommand == BACKWARD) {
+            inches *= -1;
+        } else {
+            throw new IllegalArgumentException();
+        }
+        // Set the target ticks and run the motors
+        updateEncoderTarget(driveCommand, inches, 0);
+        setSpeed(speed, speed, speed, speed);
+
+        // Wait for encoders to complete it's routine
+        while (motorFrontLeft.isBusy() && motorFrontRight.isBusy() &&
+                motorBackLeft.isBusy() && motorBackRight.isBusy()) {
+            // Display Telemetry Data
+            telemetry.addLine("Moving Linearly");
+            updateEncoderTelemetry(telemetry);
+        }
+
+        // Once completed, stop all motors:
+        setSpeed(0, 0, 0, 0);
+    }
+
+    // Negative speed = strafeRight
+    public void strafe(RobotConstants.Commands.DRIVE driveCommand, int inches, double speed, Telemetry telemetry) {
+        if (driveCommand == LEFT_STRAFE) {
+            inches *= 1;
+        } else if (driveCommand == RIGHT_STRAFE) {
+            inches *= -1;
+        } else {
+            throw new IllegalArgumentException();
+        }
+        // Set the target ticks and run the motors
+        updateEncoderTarget(driveCommand, inches, 0);
+        setSpeed(speed, speed, speed, speed);
+
+        // Wait for encoders to complete it's routine
+        while (motorFrontLeft.isBusy() && motorFrontRight.isBusy() &&
+                motorBackLeft.isBusy() && motorBackRight.isBusy()) {
+            // Display Telemetry Data
+            telemetry.addLine("Strafing");
+            updateEncoderTelemetry(telemetry);
+        }
+
+        // Once completed, stop all motors:
+        setSpeed(0, 0, 0, 0);
+    }
+
+    public void turn(RobotConstants.Commands.DRIVE driveCommand, int angle, double speed, Telemetry telemetry) {
+        if (driveCommand == RIGHT_TURN) {
+            angle *= 1;
+        } else if (driveCommand == LEFT_TURN) {
+            angle *= -1;
+        } else {
+            throw new IllegalArgumentException();
+        }
+        // Set the target ticks and run the motors
+        updateEncoderTarget(driveCommand, 0, angle);
+        setSpeed(speed, speed, speed, speed);
+
+        // Wait for encoders to complete it's routine
+        while (motorFrontLeft.isBusy() && motorFrontRight.isBusy() &&
+                motorBackLeft.isBusy() && motorBackRight.isBusy()) {
+            // Display Telemetry Data
+            telemetry.addLine("Turning");
+            updateEncoderTelemetry(telemetry);
+        }
+
+        // Once completed, stop all motors:
+        setSpeed(0, 0, 0, 0);
+    }
+
+    void updateEncoderTelemetry(Telemetry telemetry) {
+        telemetry.addData("Front Target", "%7d : %7d",
+                motorFrontLeft.getTargetPosition(), motorFrontRight.getTargetPosition());
+        telemetry.addData("Rear Target", "%7d : %7d",
+                motorFrontLeft.getTargetPosition(), motorBackRight.getTargetPosition());
+        telemetry.addData("Front Actual", "%7d : %7d",
+                motorFrontLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition());
+        telemetry.addData("Rear Actual", "%7d : %7d",
+                motorBackLeft.getCurrentPosition(), motorBackRight.getCurrentPosition());
+        telemetry.update();
+    }
+
+    void moveLinearNonEncoder(RobotConstants.Commands.DRIVE driveCommand, int seconds, double speed) throws InterruptedException {
+        if (driveCommand == FORWARD) {
+            // Do nothing
+        } else if (driveCommand == BACKWARD) {
+            speed *= -1;
+        } else {
+            throw new IllegalArgumentException();
+        }
+        setModeWithoutEncoders();
+        setSpeed(speed, speed, speed, speed);
+        Thread.sleep((int) (seconds * 1000));
+        // Once completed, stop all motors:
+        setSpeed(0, 0, 0, 0);
+    }
+
+    void strafeNonEncoder(RobotConstants.Commands.DRIVE driveCommand, double seconds, double speed) throws InterruptedException {
+        setModeWithoutEncoders();
+        if (driveCommand == LEFT_STRAFE) {
+            setSpeed(speed, -speed, speed, -speed);
+        } else if (driveCommand == RIGHT_STRAFE) {
+            setSpeed(-speed, speed, -speed, speed);
+        } else {
+            throw new IllegalArgumentException();
+        }
+        Thread.sleep((int) (seconds * 1000));
+        // Once completed, stop all motors:
+        setSpeed(0, 0, 0, 0);
+    }
 }
