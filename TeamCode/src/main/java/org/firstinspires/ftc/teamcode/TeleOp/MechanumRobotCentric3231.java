@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.lib.RobotCentricMechanumDrive;
 import org.firstinspires.ftc.teamcode.lib.LinearSlider;
 
+@Disabled
 @TeleOp(name="MD: Robot Centric (3231)", group="Linear Opmode")
 public class MechanumRobotCentric3231 extends LinearOpMode {
 
