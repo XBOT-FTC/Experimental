@@ -14,6 +14,10 @@ public class MechanumRobotCentric2939 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, Direction.FORWARD);
+
+        // Utility initializations:
+        drive.setSpeedLimiter(1.0); // set a the power limit to 1.0 (driver preference)
+
         waitForStart();
         if (isStopRequested()) return;
 
