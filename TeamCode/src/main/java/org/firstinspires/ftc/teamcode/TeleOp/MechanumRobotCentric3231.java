@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.lib.Grabber;
 import org.firstinspires.ftc.teamcode.RobotConstants;
 import org.firstinspires.ftc.teamcode.lib.RobotCentricMechanumDrive;
 import org.firstinspires.ftc.teamcode.lib.LinearSlider;
@@ -26,18 +27,10 @@ public class MechanumRobotCentric3231 extends LinearOpMode {
 
         while (opModeIsActive()) {
             drive.drive(gamepad1, telemetry);
-            slider.slide(gamepad2);
-            grabber();
+            slider.slide(gamepad2, telemetry);
+            grabber.grab(gamepad2, telemetry);
             telemetry.update();
         }
     }
 
-    private void grabber() {
-        if (gamepad2.left_bumper) {
-            grabber.setPosition(0);
-        } else if (gamepad2.right_bumper) {
-            grabber.setPosition(0.3);
-        }
-        telemetry.addData("Grabber Position: ", grabber.getPosition());
-    }
 }
