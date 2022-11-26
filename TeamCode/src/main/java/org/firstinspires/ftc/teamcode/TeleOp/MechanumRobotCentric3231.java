@@ -18,8 +18,7 @@ public class MechanumRobotCentric3231 extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, Direction.REVERSE);
         LinearSlider slider = new LinearSlider(hardwareMap.dcMotor.get("linearSlide"));
-        // Additional functionality
-        Servo grabber = hardwareMap.servo.get("grabberServo");
+        Grabber grabber = new Grabber(hardwareMap.servo.get("grabberServo"));
 
         waitForStart();
         if (isStopRequested()) return;
@@ -27,17 +26,9 @@ public class MechanumRobotCentric3231 extends LinearOpMode {
         while (opModeIsActive()) {
             drive.drive(gamepad1, telemetry);
             slider.slide(gamepad2);
-            grabber();
+            grabber.grab(gamepad2, telemetry);
             telemetry.update();
         }
     }
 
-    private void grabber() {
-        if (gamepad2.left_bumper) {
-            grabber.setPosition(0);
-        } else if (gamepad2.right_bumper) {
-            grabber.setPosition(0.3);
-        }
-        telemetry.addData("Grabber Position: ", grabber.getPosition());
-    }
 }
