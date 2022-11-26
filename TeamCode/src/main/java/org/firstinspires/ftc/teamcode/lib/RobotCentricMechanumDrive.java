@@ -12,8 +12,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -34,8 +32,11 @@ public class RobotCentricMechanumDrive {
     private DcMotor motorBackRight = null;
 
     // Ticks measurement
-    private int TICKS_PER_INCH;
-    private int TICKS_PER_DEGREE;
+    private double TICKS_PER_INCH;
+    private double TICKS_PER_DEGREE;
+
+    // Utility members
+    private double speedLimiter = 1.0;
 
     public RobotCentricMechanumDrive(HardwareMap hardwareMap, Direction motorFrontLeftDirection) throws InterruptedException {
         // Declare our motors
@@ -73,7 +74,7 @@ public class RobotCentricMechanumDrive {
         double frontRightPower = (y - x - rx) / denominator;
         double backRightPower = (y + x - rx) / denominator;
 
-        double limiter = 0.35;
+        double limiter = this.speedLimiter;
         frontLeftPower = Range.clip(frontLeftPower, -1 * limiter, limiter);
         frontRightPower = Range.clip(frontRightPower, -1 * limiter, limiter);
         backLeftPower = Range.clip(backLeftPower, -1 * limiter, limiter);
@@ -101,7 +102,7 @@ public class RobotCentricMechanumDrive {
                 motorBackLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition());
     }
 
-    public void setTicks(int perInch, int perDegree) {
+    public void setTicks(double perInch, double perDegree) {
         this.TICKS_PER_INCH = perInch;
         this.TICKS_PER_DEGREE = perDegree;
     }
@@ -111,6 +112,10 @@ public class RobotCentricMechanumDrive {
         this.motorFrontRight.setPower(fR);
         this.motorFrontLeft.setPower(bL);
         this.motorFrontLeft.setPower(bR);
+    }
+
+    public void setSpeedLimiter(double speed) {
+        this.speedLimiter = speed;
     }
 
     public void setModeWithEncoders() {
@@ -173,8 +178,6 @@ public class RobotCentricMechanumDrive {
         motorBackRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
-
-    // Negative speed = moveBackwards
     public void moveLinear(RobotConstants.Commands.DRIVE driveCommand, int inches, double speed, Telemetry telemetry) {
         if (driveCommand == FORWARD) {
             inches *= 1;
@@ -196,10 +199,9 @@ public class RobotCentricMechanumDrive {
         }
 
         // Once completed, stop all motors:
-        setSpeed(0, 0, 0, 0);
+        setSpeed(ZERO_POWER, ZERO_POWER, ZERO_POWER, ZERO_POWER);
     }
 
-    // Negative speed = strafeRight
     public void strafe(RobotConstants.Commands.DRIVE driveCommand, int inches, double speed, Telemetry telemetry) {
         if (driveCommand == LEFT_STRAFE) {
             inches *= 1;
@@ -221,7 +223,7 @@ public class RobotCentricMechanumDrive {
         }
 
         // Once completed, stop all motors:
-        setSpeed(0, 0, 0, 0);
+        setSpeed(ZERO_POWER, ZERO_POWER, ZERO_POWER, ZERO_POWER);
     }
 
     public void turn(RobotConstants.Commands.DRIVE driveCommand, int angle, double speed, Telemetry telemetry) {
@@ -245,7 +247,7 @@ public class RobotCentricMechanumDrive {
         }
 
         // Once completed, stop all motors:
-        setSpeed(0, 0, 0, 0);
+        setSpeed(ZERO_POWER, ZERO_POWER, ZERO_POWER, ZERO_POWER);
     }
 
     void updateEncoderTelemetry(Telemetry telemetry) {
@@ -262,7 +264,7 @@ public class RobotCentricMechanumDrive {
 
     void moveLinearNonEncoder(RobotConstants.Commands.DRIVE driveCommand, int seconds, double speed) throws InterruptedException {
         if (driveCommand == FORWARD) {
-            // Do nothing
+            speed *= 1;
         } else if (driveCommand == BACKWARD) {
             speed *= -1;
         } else {
@@ -272,7 +274,7 @@ public class RobotCentricMechanumDrive {
         setSpeed(speed, speed, speed, speed);
         Thread.sleep((int) (seconds * 1000));
         // Once completed, stop all motors:
-        setSpeed(0, 0, 0, 0);
+        setSpeed(ZERO_POWER, ZERO_POWER, ZERO_POWER, ZERO_POWER);
     }
 
     void strafeNonEncoder(RobotConstants.Commands.DRIVE driveCommand, double seconds, double speed) throws InterruptedException {
@@ -286,6 +288,6 @@ public class RobotCentricMechanumDrive {
         }
         Thread.sleep((int) (seconds * 1000));
         // Once completed, stop all motors:
-        setSpeed(0, 0, 0, 0);
+        setSpeed(ZERO_POWER, ZERO_POWER, ZERO_POWER, ZERO_POWER);
     }
 }

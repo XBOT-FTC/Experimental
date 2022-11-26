@@ -21,6 +21,9 @@ public class MechanumRobotCentric3231 extends LinearOpMode {
         LinearSlider slider = new LinearSlider(hardwareMap.dcMotor.get(RobotConstants.SLIDE));
         Grabber grabber = new Grabber(hardwareMap.servo.get(RobotConstants.GRABBER));
 
+        // Utility initializations:
+        drive.setSpeedLimiter(0.5); // set a the power limit to 0.5 (driver preference)
+
         waitForStart();
         if (isStopRequested()) return;
 

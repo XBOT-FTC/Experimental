@@ -99,7 +99,7 @@ public class AprilTagParking extends LinearOpMode {
 
         // Initialize the robot
         RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, DcMotorSimple.Direction.FORWARD);
-
+        drive.setTicks(TICKS_PER_INCH, TICKS_PER_INCH);
         // whereas 3231 wants
         // RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, DcMotorSimple.Direction.REVERSE);
 
