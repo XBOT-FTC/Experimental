@@ -32,32 +32,44 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         motorLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         motorRight.setDirection(DcMotorSimple.Direction.FORWARD);
 
+        // Put initialization blocks here
+        waitForStart();
+
+        driveForward(800, 0.5);
+        sleep(1500);
+        driveForward(550, 0.5);
+    }
+
+    void driveForward(int ticks, double speed) {
+        // Set Drive to run with encoders.
         motorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         motorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        // Retrieve the current position for each motor
+        int leftPos = motorLeft.getCurrentPosition();
+        int rightPos = motorRight.getCurrentPosition();
+
+        // Calculate the ticks to be reached
+        leftPos += ticks;
+        rightPos += ticks;
+
+        motorLeft.setTargetPosition(leftPos);
+        motorRight.setTargetPosition(rightPos);
+
         motorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        // Put initialization blocks here
-        waitForStart();
-        int leftPos = motorLeft.getCurrentPosition();
-        int rightPos = motorRight.getCurrentPosition();
-        leftPos += 1350;
-        rightPos += 1350;
-        motorLeft.setTargetPosition(leftPos);
-        motorRight.setTargetPosition(rightPos);
-        // Put run blocks here
-        motorLeft.setPower(1.0);
-        motorRight.setPower(1.0);
+        motorLeft.setPower(speed);
+        motorRight.setPower(speed);
 
-        for (int i = 0; i < 5; i++) {
-            while (motorLeft.isBusy() && motorRight.isBusy()) {
-                sleep(10);
-            }
+        // Wait for encoders to complete it's routine
+        while (motorLeft.isBusy() && motorRight.isBusy()) {
+            // Display Telemetry Data
         }
+
     }
 
 }
