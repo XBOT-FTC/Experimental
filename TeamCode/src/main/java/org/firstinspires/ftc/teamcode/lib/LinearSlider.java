@@ -14,6 +14,13 @@ public class LinearSlider {
 
     private DcMotor slideMotor = null;
 
+    private int smallPolePosition = 0;
+    private int mediumPolePosition = 0;
+    private int largePolePosition = 0;
+
+    private double manualSpeed = 0.0; // for moving via trigger
+    private double autoSpeed = 0.0;  // for moving w/ encoders
+
     public LinearSlider(DcMotor slideMotor, Direction direction) {
         this.slideMotor = slideMotor;
         this.slideMotor.setDirection(direction);
@@ -33,7 +40,7 @@ public class LinearSlider {
         if (forwardPower != 0.0 || reversePower != 0.0) {
             slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
-        double powerLimiter = 0.5; // limits the power the motors can run at so from -0.5 to 0.5
+        double powerLimiter = manualSpeed; // limits the power the motors can run at so from -0.5 to 0.5
         double power = (forwardPower != ZERO_POWER) ? forwardPower : -1 * reversePower;
         // if (forwardPower != ZERO_POWER) {
         // power = forwardPower;
@@ -49,6 +56,20 @@ public class LinearSlider {
         telemetry.addData("Encoder Distance: ", slideMotor.getCurrentPosition());
     }
 
+    public void setPosition(int small, int medium, int large) {
+        this.smallPolePosition = small;
+        this.mediumPolePosition = medium;
+        this.largePolePosition = large;
+    }
+
+    public void setManualSpeed(double speed) {
+        this.manualSpeed = speed;
+    }
+
+    public void setAutoSpeed(double speed) {
+        this.autoSpeed = speed;
+    }
+
     private void slideEncoderTarget(Gamepad gamepad, Telemetry telemetry) {
         // If gamepad 2 buttons a,x,y are pressed, we will use encoders to reach target
         if (gamepad.a || gamepad.x || gamepad.y) {
@@ -57,22 +78,22 @@ public class LinearSlider {
             slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
             // Encoder settings
-            int currentTicks = slideMotor.getCurrentPosition();
-            int shortPole = 1900 + currentTicks, medPole = 4000 + currentTicks, highPole = 5000 + currentTicks;
-            if (gamepad.a)
-                slideMotor.setTargetPosition(shortPole);
-            else if (gamepad.x)
-                slideMotor.setTargetPosition(medPole);
-            else if (gamepad.y)
-                slideMotor.setTargetPosition(highPole);
-
+            int currentPosition = slideMotor.getCurrentPosition();
+            int targetPosition = currentPosition;
+            if (gamepad.a) {
+                targetPosition += smallPolePosition;
+            } else if (gamepad.x) {
+                targetPosition += mediumPolePosition;
+            } else if (gamepad.y) {
+                targetPosition += largePolePosition;
+            }
+            slideMotor.setTargetPosition(targetPosition);
             // If a target position is set, run to that position
             if (slideMotor.getTargetPosition() != 0) {
                 slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
                 // Motor will run at the designated power until it reaches the position
-                double speed = 0.25;
-                slideMotor.setPower(speed);
+                slideMotor.setPower(autoSpeed);
 
                 // Wait until the motors stop.
                 while (slideMotor.isBusy()) {
