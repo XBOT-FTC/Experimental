@@ -38,6 +38,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.robot.Robot;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.lib.Grabber;
 import org.firstinspires.ftc.teamcode.lib.LinearSlider;
 import org.firstinspires.ftc.teamcode.lib.RobotCentricMechanumDrive;
 import org.openftc.apriltag.AprilTagDetection;
@@ -104,8 +105,8 @@ public class AprilTagParking extends LinearOpMode {
         // RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, DcMotorSimple.Direction.REVERSE);
 
         // Initialize Operator Members and Motors
-        Servo grabber = hardwareMap.servo.get(RobotConstants.GRABBER);
-        LinearSlider slider = new LinearSlider(hardwareMap.dcMotor.get(RobotConstants.SLIDE));
+        // Grabber grabber = new Grabber(hardwareMap.servo.get(RobotConstants.GRABBER), Servo.Direction.REVERSE);
+        // LinearSlider slider = new LinearSlider(hardwareMap.dcMotor.get(RobotConstants.SLIDE), DcMotorSimple.Direction.REVERSE);
         // TODO: linearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         telemetry.setMsTransmissionInterval(50);

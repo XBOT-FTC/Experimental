@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.lib;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -12,8 +14,9 @@ public class LinearSlider {
 
     private DcMotor slideMotor = null;
 
-    public LinearSlider(DcMotor slideMotor) {
+    public LinearSlider(DcMotor slideMotor, Direction direction) {
         this.slideMotor = slideMotor;
+        this.slideMotor.setDirection(direction);
     }
 
     public void slide(Gamepad gamepad, Telemetry telemetry) {

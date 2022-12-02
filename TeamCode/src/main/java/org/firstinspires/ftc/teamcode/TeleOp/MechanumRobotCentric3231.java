@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+
 import org.firstinspires.ftc.teamcode.lib.Grabber;
 import org.firstinspires.ftc.teamcode.RobotConstants;
 import org.firstinspires.ftc.teamcode.lib.RobotCentricMechanumDrive;
@@ -18,8 +19,8 @@ public class MechanumRobotCentric3231 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, Direction.REVERSE);
-        LinearSlider slider = new LinearSlider(hardwareMap.dcMotor.get(RobotConstants.SLIDE));
-        Grabber grabber = new Grabber(hardwareMap.servo.get(RobotConstants.GRABBER));
+        LinearSlider slider = new LinearSlider(hardwareMap.dcMotor.get(RobotConstants.SLIDE), Direction.FORWARD);
+        Grabber grabber = new Grabber(hardwareMap.servo.get(RobotConstants.GRABBER), Servo.Direction.FORWARD);
 
         // Utility initializations:
         drive.setSpeedLimiter(0.5); // set a the power limit to 0.5 (driver preference)
