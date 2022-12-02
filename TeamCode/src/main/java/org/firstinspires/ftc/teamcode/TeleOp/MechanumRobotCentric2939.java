@@ -5,6 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 
+import org.firstinspires.ftc.teamcode.RobotConstants;
+import org.firstinspires.ftc.teamcode.lib.Grabber;
+import org.firstinspires.ftc.teamcode.lib.LinearSlider;
 import org.firstinspires.ftc.teamcode.lib.RobotCentricMechanumDrive;
 
 
@@ -14,6 +17,9 @@ public class MechanumRobotCentric2939 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, Direction.FORWARD);
+        LinearSlider slider = new LinearSlider(hardwareMap.dcMotor.get(RobotConstants.SLIDE));
+        Grabber grabber = new Grabber(hardwareMap.servo.get(RobotConstants.GRABBER));
+
 
         // Utility initializations:
         drive.setSpeedLimiter(1.0); // set a the power limit to 1.0 (driver preference)
@@ -23,6 +29,8 @@ public class MechanumRobotCentric2939 extends LinearOpMode {
 
         while (opModeIsActive()) {
             drive.drive(gamepad1, telemetry);
+            slider.slide(gamepad2, telemetry);
+            grabber.grab(gamepad2, telemetry);
             telemetry.update();
         }
     }
