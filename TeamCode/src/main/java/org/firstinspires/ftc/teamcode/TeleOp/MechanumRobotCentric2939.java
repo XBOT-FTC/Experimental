@@ -24,6 +24,9 @@ public class MechanumRobotCentric2939 extends LinearOpMode {
 
         // Utility initializations:
         drive.setSpeedLimiter(1.0); // set a the power limit to 1.0 (driver preference)
+        slider.setManualSpeed(0.25);
+        slider.setAutoSpeed(0.5);
+        slider.setPosition(500, 1000, 1500);
 
         waitForStart();
         if (isStopRequested()) return;
