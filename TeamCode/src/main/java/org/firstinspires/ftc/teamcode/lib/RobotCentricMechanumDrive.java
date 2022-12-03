@@ -110,8 +110,8 @@ public class RobotCentricMechanumDrive {
     public void setSpeed(double fL, double fR, double bL, double bR) {
         this.motorFrontLeft.setPower(fL);
         this.motorFrontRight.setPower(fR);
-        this.motorFrontLeft.setPower(bL);
-        this.motorFrontLeft.setPower(bR);
+        this.motorBackLeft.setPower(bL);
+        this.motorBackRight.setPower(bR);
     }
 
     public void setSpeedLimiter(double speed) {
