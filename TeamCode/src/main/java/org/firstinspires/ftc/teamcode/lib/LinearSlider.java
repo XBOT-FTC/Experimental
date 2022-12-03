@@ -24,10 +24,11 @@ public class LinearSlider {
     public LinearSlider(DcMotor slideMotor, Direction direction) {
         this.slideMotor = slideMotor;
         this.slideMotor.setDirection(direction);
+        this.slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void slide(Gamepad gamepad, Telemetry telemetry) {
-        slideTrigger(gamepad, telemetry);
+//        slideTrigger(gamepad, telemetry);
         slideEncoderTarget(gamepad, telemetry);
     }
 
@@ -75,7 +76,6 @@ public class LinearSlider {
         if (gamepad.a || gamepad.x || gamepad.y) {
             // Stop and reset the encoders
             slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
             // Encoder settings
             int currentPosition = slideMotor.getCurrentPosition();
@@ -95,26 +95,19 @@ public class LinearSlider {
                 // Motor will run at the designated power until it reaches the position
                 slideMotor.setPower(autoSpeed);
 
-                // Wait until the motors stop.
+                // Wait until the motor runs to that position
                 while (slideMotor.isBusy()) {
                     telemetry.addData("Linear Slide Distance: ", slideMotor.getCurrentPosition());
                     telemetry.addData("Target: ", slideMotor.getTargetPosition());
                     telemetry.update();
-                    // STOP COMMAND
-                    if (gamepad.b) {
+                    // If the operator tries moving the slide manually, disable the run to position.
+                    if (gamepad.left_trigger != 0.0 || gamepad.right_trigger != 0.0 || gamepad.start) {
                         // Reset encoders and set the mode back to run w/o encoders
                         slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                         slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         break;
                     }
-                    // TODO: Before this was moved into its own class, we had an idle() call
-                    // here. I think maybe this is a WIP (do we really want to idle the bot?
-                    // idle();
                 }
-
-                // Set power back to zero since position is reached or broken out of.
-                // TODO: need to find the power to counteract gravitational pull?
-                slideMotor.setPower(ZERO_POWER);
             }
         }
     }
