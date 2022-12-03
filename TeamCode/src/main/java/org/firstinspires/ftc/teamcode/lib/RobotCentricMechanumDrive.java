@@ -37,6 +37,7 @@ public class RobotCentricMechanumDrive {
 
     // Utility members
     private double speedLimiter = 1.0;
+    private double speedFactorMultiplier = 1.0;
 
     public RobotCentricMechanumDrive(HardwareMap hardwareMap, Direction motorFrontLeftDirection) throws InterruptedException {
         // Declare our motors
@@ -57,7 +58,7 @@ public class RobotCentricMechanumDrive {
     }
 
     public void drive(Gamepad gamepad, Telemetry telemetry) {
-        double speedFactor = gamepad.left_trigger * 1;
+        double speedFactor = gamepad.left_trigger * speedFactorMultiplier;
         telemetry.addData("left_trigger (speedFactor): ", gamepad.left_trigger);
 
         double y = -gamepad.left_stick_y; // Remember, this is reversed!
@@ -116,6 +117,10 @@ public class RobotCentricMechanumDrive {
 
     public void setSpeedLimiter(double speed) {
         this.speedLimiter = speed;
+    }
+
+    public void setSpeedFactorMultiplier(double multiplier) {
+        this.speedFactorMultiplier = multiplier;
     }
 
     public void setModeWithEncoders() {
