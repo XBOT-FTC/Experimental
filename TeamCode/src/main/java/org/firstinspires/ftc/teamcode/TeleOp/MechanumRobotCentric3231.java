@@ -19,13 +19,12 @@ public class MechanumRobotCentric3231 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, Direction.REVERSE);
-        LinearSlider slider = new LinearSlider(hardwareMap.dcMotor.get(RobotConstants.SLIDE), Direction.FORWARD);
+        LinearSlider slider = new LinearSlider(hardwareMap.dcMotor.get(RobotConstants.SLIDE), Direction.REVERSE);
         Grabber grabber = new Grabber(hardwareMap.servo.get(RobotConstants.GRABBER), Servo.Direction.FORWARD);
 
         // Utility initializations:
         drive.setSpeedLimiter(0.5); // set a the power limit to 0.5 (driver preference)
-
-        slider.setManualSpeed(0.25);
+        slider.setManualSpeed(0.5);
         slider.setAutoSpeed(0.5);
         slider.setPosition(500, 1000, 1500);
 

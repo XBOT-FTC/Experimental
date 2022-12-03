@@ -17,12 +17,14 @@ public class LinearSlider {
     private int smallPolePosition = 0;
     private int mediumPolePosition = 0;
     private int largePolePosition = 0;
+    private int maxManualPosition = 100000;
 
-    private double manualSpeed = 0.0; // for moving via trigger
+    private double maxSpeed = 0.0; // for moving via trigger
     private double autoSpeed = 0.0;  // for moving w/ encoders
 
     public LinearSlider(DcMotor slideMotor, Direction direction) {
         this.slideMotor = slideMotor;
+        this.slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.slideMotor.setDirection(direction);
         this.slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
@@ -34,26 +36,18 @@ public class LinearSlider {
 
     // Using left and right trigger to move the slider based on pressure:
     private void slideTrigger(Gamepad gamepad, Telemetry telemetry) {
-        double constant = 1.0;
-        double forwardPower = gamepad.right_trigger * constant;
-        double reversePower = gamepad.left_trigger * constant;
-        // Set the mode to run without encoders if manual control is detected
-        if (forwardPower != 0.0 || reversePower != 0.0) {
-            slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        double forwardPower = gamepad.right_trigger;
+        double reversePower = gamepad.left_trigger;
+        double power = (forwardPower != ZERO_POWER) ? forwardPower * maxSpeed: -1 * reversePower * maxSpeed;
+        power = Range.clip(power, -1 * maxSpeed, maxSpeed);
+        // Safety limits
+        int position = slideMotor.getCurrentPosition();
+        if(position < 0 && power < 0) {
+            telemetry.addData("WARNING:  Ignoring negative power command to slider because position is ", position);
+        } else {
+            slideMotor.setPower(power);
         }
-        double powerLimiter = manualSpeed; // limits the power the motors can run at so from -0.5 to 0.5
-        double power = (forwardPower != ZERO_POWER) ? forwardPower : -1 * reversePower;
-        // if (forwardPower != ZERO_POWER) {
-        // power = forwardPower;
-        // } else {
-        // power = -1 * reversePower;
-        // }
-        // TODO: set minimum and maximum power ranges if we don't want the motors to go
-        // too fast
-        // default is -1.0 -> 1.0
-        power = Range.clip(power, -1 * powerLimiter, powerLimiter);
-        slideMotor.setPower(power);
-        telemetry.addData("Slide Power: ", slideMotor.getPower());
+        telemetry.addData("Slide Power is (w/ braking): ", slideMotor.getPower());
         telemetry.addData("Encoder Distance: ", slideMotor.getCurrentPosition());
     }
 
@@ -64,7 +58,10 @@ public class LinearSlider {
     }
 
     public void setManualSpeed(double speed) {
-        this.manualSpeed = speed;
+        if(speed > 1 || speed < 0) {
+            throw new RuntimeException("Slider max speed must be between 0 and 1");
+        }
+        this.maxSpeed = speed;
     }
 
     public void setAutoSpeed(double speed) {
