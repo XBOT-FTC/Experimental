@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.lib.LinearSlider;
 @TeleOp(name="MD: Robot Centric (3231)", group="Linear Opmode")
 public class MechanumRobotCentric3231 extends LinearOpMode {
 
+
     @Override
     public void runOpMode() throws InterruptedException {
         RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, Direction.REVERSE);
@@ -26,8 +27,8 @@ public class MechanumRobotCentric3231 extends LinearOpMode {
         drive.setSpeedLimiter(0.5); // set a the power limit to 0.5 (driver preference)
         slider.setManualSpeed(0.5);
         slider.setAutoSpeed(0.5);
-        slider.setPosition(500, 1000, 1500);
-        slider.setMaxManualPosition(6600);
+        slider.setPosition(0,3000, 4750, 6500);
+        slider.setMaxManualPosition(6400);
         grabber.setMaxPosition(0.3);
 
         waitForStart();
