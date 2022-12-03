@@ -26,12 +26,11 @@ public class LinearSlider {
         this.slideMotor = slideMotor;
         this.slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.slideMotor.setDirection(direction);
-        this.slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void slide(Gamepad gamepad, Telemetry telemetry) {
-//        slideTrigger(gamepad, telemetry);
-        slideEncoderTarget(gamepad, telemetry);
+        slideTrigger(gamepad, telemetry);
+//        slideEncoderTarget(gamepad, telemetry);
     }
 
     // Using left and right trigger to move the slider based on pressure:
@@ -43,8 +42,16 @@ public class LinearSlider {
         // Safety limits
         int position = slideMotor.getCurrentPosition();
         if(position < 0 && power < 0) {
-            telemetry.addData("WARNING:  Ignoring negative power command to slider because position is ", position);
+            telemetry.addData("WARNING:  Ignoring negative power command to slider because position is out of bounds low", position);
+            slideMotor.setPower(0);
+        } else if (position > this.maxManualPosition && power > 0) {
+            telemetry.addData("WARNING:  Ignoring positive power command to slider because position is out of bounds high", position);
+            slideMotor.setPower(0);
         } else {
+            // Hold the slider in place
+            if(power >= 0 && power < .15 && position > 10) {
+                power = .15;
+            }
             slideMotor.setPower(power);
         }
         telemetry.addData("Slide Power is (w/ braking): ", slideMotor.getPower());
@@ -62,6 +69,10 @@ public class LinearSlider {
             throw new RuntimeException("Slider max speed must be between 0 and 1");
         }
         this.maxSpeed = speed;
+    }
+
+    public void setMaxManualPosition(int maxManualPosition) {
+        this.maxManualPosition = maxManualPosition;
     }
 
     public void setAutoSpeed(double speed) {
