@@ -22,13 +22,19 @@ public class MechanumRobotCentric2939 extends LinearOpMode {
         Grabber grabber = new Grabber(hardwareMap.servo.get(RobotConstants.GRABBER), Servo.Direction.REVERSE);
 
 
-        // Utility initializations:
+        // Initializations:
+
+        // Drive
         drive.setSpeedLimiter(1.0); // set a the power limit to 1.0 (driver preference)
+        drive.setSpeedFactorMultiplier(1.5); // higher value = slower speed when pressing left_trigger
 
-        slider.setManualSpeed(0.25);
+        // Slider
+        slider.setManualSpeed(0.4, 0.25);
         slider.setAutoSpeed(0.5);
-        slider.setPosition(0,500, 1000, 1500);
+        slider.setPosition(600,2200, 3400, 4600);
+        slider.setMaxManualPosition(4600);
 
+        // Grabber
         grabber.setMaxPosition(0.6);
 
         waitForStart();

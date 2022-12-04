@@ -23,14 +23,18 @@ public class LinearSlider {
     // Idle power For 3231, .15 works well when the bot batter is 8V at rest
     private double holdPositionMotorPower = .02;
 
-    private double maxSpeed = 0.0; // for moving via trigger
+    private double maxIncrementSpeed = 0.0; // for moving via trigger
+    private double maxDecrementSpeed = 0.0; // for moving via trigger
     private double autoSpeed = 0.0; // for moving w/ encoders
+
+    private boolean encoderMode = false;
 
     public LinearSlider(DcMotor slideMotor, Direction direction) {
         this.slideMotor = slideMotor;
         this.slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.slideMotor.setDirection(direction);
+        this.encoderMode = false;
     }
 
     public void slide(Gamepad gamepad, Telemetry telemetry) {
@@ -41,11 +45,19 @@ public class LinearSlider {
     // Using left and right trigger to move the slider based on pressure:
     private void slideTrigger(Gamepad gamepad, Telemetry telemetry) {
         if (gamepad.left_trigger != 0.0 || gamepad.right_trigger != 0.0) {
+            telemetry.addLine("The trigger has been pressed. Manual mode.");
             this.slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            this.encoderMode = false;
             double forwardPower = gamepad.right_trigger;
             double reversePower = gamepad.left_trigger;
-            double power = (forwardPower != ZERO_POWER) ? forwardPower * maxSpeed : -1 * reversePower * maxSpeed;
-            power = Range.clip(power, -1 * maxSpeed, maxSpeed);
+            double power = 0.0;
+            if (forwardPower != ZERO_POWER) {
+                power = forwardPower;
+                power = Range.clip(power, 0, maxIncrementSpeed);
+            } else if (reversePower != ZERO_POWER) {
+                power = reversePower * -1;
+                power = Range.clip(power, -maxDecrementSpeed, 0);
+            }
             // Safety limits
             int position = slideMotor.getCurrentPosition();
             if (position < 0 && power < 0) {
@@ -59,15 +71,15 @@ public class LinearSlider {
                         position);
                 slideMotor.setPower(0);
             } else {
-                // Hold the slider in place
-                if (power >= 0 && power < .15 && position > 10) {
-                    power = holdPositionMotorPower;
-                }
+                // Otherwise, set power based on trigger
                 slideMotor.setPower(power);
             }
+        } else if (encoderMode) {
+            telemetry.addLine("Slide: In encoder mode, we are relying on encoders to stay afloat.");
+            // do nothing since encoder control are upholding power already.
         } else {
-            int position = slideMotor.getCurrentPosition();
-            slideMotor.setPower(position > 10 && position < maxManualPosition ? holdPositionMotorPower : 0);
+            telemetry.addLine("Slide: Not in encoder mode and no power from the trigger, set zero.");
+            slideMotor.setPower(0.0);
         }
         // The triggers are both at zero, so
 
@@ -82,11 +94,12 @@ public class LinearSlider {
         this.largePolePosition = large;
     }
 
-    public void setManualSpeed(double speed) {
-        if (speed > 1 || speed < 0) {
+    public void setManualSpeed(double increasing, double decreasing) {
+        if (increasing > 1 || increasing < 0 || decreasing > 1 || decreasing < 0) {
             throw new RuntimeException("Slider max speed must be between 0 and 1");
         }
-        this.maxSpeed = speed;
+        this.maxIncrementSpeed = increasing;
+        this.maxDecrementSpeed = decreasing;
     }
 
     public void setMaxManualPosition(int maxManualPosition) {
@@ -127,6 +140,7 @@ public class LinearSlider {
                         break;
                     }
                 }
+                this.encoderMode = true;
             }
         }
     }
