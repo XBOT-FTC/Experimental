@@ -26,7 +26,7 @@ public class MechanumRobotCentric2939 extends LinearOpMode {
 
         // Drive
         drive.setSpeedLimiter(1.0); // set a the power limit to 1.0 (driver preference)
-        drive.setSpeedFactorMultiplier(1.5); // higher value = slower speed when pressing left_trigger
+        drive.setSpeedFactorMultiplier(1.5, 3.0); // higher value = slower speed when pressing left_trigger and right_trigger
 
         // Slider
         slider.setManualSpeed(0.4, 0.25);
