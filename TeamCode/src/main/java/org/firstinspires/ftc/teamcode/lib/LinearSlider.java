@@ -71,6 +71,10 @@ public class LinearSlider {
                         position);
                 slideMotor.setPower(0);
             } else {
+                // Hold the slider in place
+                if (power >= 0 && power < .15 && position > 10) {
+                    power = holdPositionMotorPower;
+                }
                 // Otherwise, set power based on trigger
                 slideMotor.setPower(power);
             }
