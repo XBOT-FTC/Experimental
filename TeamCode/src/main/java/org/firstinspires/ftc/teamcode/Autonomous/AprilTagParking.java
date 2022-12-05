@@ -186,18 +186,18 @@ public class AprilTagParking extends LinearOpMode {
             if (tagOfInterest.id == LEFT) {
                 // Drive to Position #1 (Left) w/ Encoders
             // TODO:  This is the version for 2939.
-                drive.moveLinear(FORWARD, 16, 0.25, telemetry);
+                drive.moveLinear(FORWARD, 24, 0.25, telemetry);
                 drive.strafe(LEFT_STRAFE, 26, 0.25, telemetry);
             } else if (tagOfInterest.id == MIDDLE) {
                 // Drive to Position #2 (Middle) w/ Encoders
-                drive.moveLinear(FORWARD, 16, 0.25, telemetry);
+                drive.moveLinear(FORWARD, 24, 0.25, telemetry);
             } else if (tagOfInterest.id == RIGHT) {
                 // Drive to Position #3 (Right) w/ Encoders
-                drive.moveLinear(FORWARD, 16, 0.25, telemetry);
+                drive.moveLinear(FORWARD, 24, 0.25, telemetry);
                 drive.strafe(RIGHT_STRAFE, 26, 0.25, telemetry);
             } else {
                 // Somehow we got another tag.. Drive to Position #2 (Middle) w/ one third chance.
-                drive.moveLinear(FORWARD, 16, 0.25, telemetry);
+                drive.moveLinear(FORWARD, 24, 0.25, telemetry);
             }
         }
     }
