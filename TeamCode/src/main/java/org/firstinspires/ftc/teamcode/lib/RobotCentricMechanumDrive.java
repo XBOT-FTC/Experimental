@@ -36,8 +36,8 @@ public class RobotCentricMechanumDrive {
     private double TICKS_PER_DEGREE;
 
     // Utility members
-    private double speedLimiter = 1.0;
-    private double speedFactorMultiplier = 1.0;
+    private double speedLimiter = 0;
+    public boolean speedMode = false;
 
     public RobotCentricMechanumDrive(HardwareMap hardwareMap, Direction motorFrontLeftDirection) throws InterruptedException {
         // Declare our motors
@@ -58,28 +58,27 @@ public class RobotCentricMechanumDrive {
     }
 
     public void drive(Gamepad gamepad, Telemetry telemetry) {
-        double speedFactor = gamepad.left_trigger * speedFactorMultiplier;
-        telemetry.addData("left_trigger (speedFactor): ", gamepad.left_trigger);
 
         double y = -gamepad.left_stick_y; // Remember, this is reversed!
         double x = gamepad.left_stick_x * 1.1; // Counteract imperfect strafing
         double rx = gamepad.right_stick_x;
 
-        // Denominator is the largest motor power (absolute value) or 1
-        // This ensures all the powers maintain the same ratio, but only when
-        // at least one is out of the range [-1, 1]
-        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-        denominator = denominator * (1 + speedFactor);
-        double frontLeftPower = (y + x + rx) / denominator;
-        double backLeftPower = (y - x + rx) / denominator;
-        double frontRightPower = (y - x - rx) / denominator;
-        double backRightPower = (y + x - rx) / denominator;
+        if(gamepad.a){
+            speedMode = !speedMode;
+        }
 
-        double limiter = this.speedLimiter;
-        frontLeftPower = Range.clip(frontLeftPower, -1 * limiter, limiter);
-        frontRightPower = Range.clip(frontRightPower, -1 * limiter, limiter);
-        backLeftPower = Range.clip(backLeftPower, -1 * limiter, limiter);
-        backRightPower = Range.clip(backRightPower, -1 * limiter, limiter);
+        double frontLeftPower = (y + x + rx);
+        double backLeftPower = (y - x + rx);
+        double frontRightPower = (y - x - rx);
+        double backRightPower = (y + x - rx);
+
+        if(speedMode){
+            frontLeftPower *= speedLimiter;
+            backLeftPower *= speedLimiter;
+            frontRightPower *= speedLimiter;
+            backRightPower *= speedLimiter;
+        }
+
 
         motorFrontLeft.setPower(frontLeftPower);
         motorBackLeft.setPower(backLeftPower);
@@ -117,10 +116,6 @@ public class RobotCentricMechanumDrive {
 
     public void setSpeedLimiter(double speed) {
         this.speedLimiter = speed;
-    }
-
-    public void setSpeedFactorMultiplier(double multiplier) {
-        this.speedFactorMultiplier = multiplier;
     }
 
     public void setModeWithEncoders() {
