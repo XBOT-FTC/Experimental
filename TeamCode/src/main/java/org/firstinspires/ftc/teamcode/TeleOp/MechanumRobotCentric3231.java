@@ -29,7 +29,7 @@ public class MechanumRobotCentric3231 extends LinearOpMode {
         drive.setSpeedChange(0.25);
         drive.setMaxSpeed(1);
         drive.setMinSpeed(0.25);
-        drive.setMidSpeed(0.5);
+        drive.setSpeedThreshold(0.5);
 
 
         // Slider

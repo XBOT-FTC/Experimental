@@ -37,7 +37,7 @@ public class RobotCentricMechanumDrive {
     public double defaultSpeed = 0;
     public double speedChange = 0;
     public double maxSpeed = 0;
-    public double midSpeed = 0;
+    public double speedThreshold = 0;
     public double minSpeed = 0;
     public boolean speedMode = false;
 
@@ -81,12 +81,12 @@ public class RobotCentricMechanumDrive {
                     speedModeLimiter -= speedChange;
                 }
             }else{
-                if(defaultSpeed - speedChange >= midSpeed)
+                if(defaultSpeed - speedChange >= speedThreshold)
                 defaultSpeed -= speedChange;
             }
         } else if(gamepad.dpad_up){
             if(speedMode){
-                if(speedModeLimiter + speedChange <= midSpeed){
+                if(speedModeLimiter + speedChange <= speedThreshold){
                     speedModeLimiter += speedChange;
                 }
             }else{
@@ -158,8 +158,8 @@ public class RobotCentricMechanumDrive {
     public void setMinSpeed(double minSpeed){
         this.minSpeed = minSpeed;
     }
-    public void setMidSpeed(double midSpeed){
-        this.midSpeed = midSpeed;
+    public void setSpeedThreshold(double speedThreshold){
+        this.speedThreshold = speedThreshold;
     }
 
 
