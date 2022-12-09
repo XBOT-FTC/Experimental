@@ -7,12 +7,9 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.LEFT_
 import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.RIGHT_STRAFE;
 import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.RIGHT_TURN;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -35,9 +32,15 @@ public class RobotCentricMechanumDrive {
     private double TICKS_PER_INCH;
     private double TICKS_PER_DEGREE;
 
-    // Utility members
-    private double speedLimiter = 1.0;
-    private double speedFactorMultiplier = 1.0;
+    // Utility members.5
+    private double speedModeLimiter = 0;
+    public double defaultSpeed = 0;
+    public double speedChange = 0;
+    public double maxSpeed = 0;
+    public double speedThreshold = 0;
+    public double minSpeed = 0;
+    public boolean speedMode = false;
+
 
     public RobotCentricMechanumDrive(HardwareMap hardwareMap, Direction motorFrontLeftDirection) throws InterruptedException {
         // Declare our motors
@@ -58,28 +61,53 @@ public class RobotCentricMechanumDrive {
     }
 
     public void drive(Gamepad gamepad, Telemetry telemetry) {
-        double speedFactor = gamepad.left_trigger * speedFactorMultiplier;
-        telemetry.addData("left_trigger (speedFactor): ", gamepad.left_trigger);
 
         double y = -gamepad.left_stick_y; // Remember, this is reversed!
         double x = gamepad.left_stick_x * 1.1; // Counteract imperfect strafing
         double rx = gamepad.right_stick_x;
 
-        // Denominator is the largest motor power (absolute value) or 1
-        // This ensures all the powers maintain the same ratio, but only when
-        // at least one is out of the range [-1, 1]
-        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-        denominator = denominator * (1 + speedFactor);
-        double frontLeftPower = (y + x + rx) / denominator;
-        double backLeftPower = (y - x + rx) / denominator;
-        double frontRightPower = (y - x - rx) / denominator;
-        double backRightPower = (y + x - rx) / denominator;
+        if(gamepad.a){
+            speedMode = !speedMode;
+        }
 
-        double limiter = this.speedLimiter;
-        frontLeftPower = Range.clip(frontLeftPower, -1 * limiter, limiter);
-        frontRightPower = Range.clip(frontRightPower, -1 * limiter, limiter);
-        backLeftPower = Range.clip(backLeftPower, -1 * limiter, limiter);
-        backRightPower = Range.clip(backRightPower, -1 * limiter, limiter);
+        double frontLeftPower = (y + x + rx);
+        double backLeftPower = (y - x + rx);
+        double frontRightPower = (y - x - rx);
+        double backRightPower = (y + x - rx);
+
+        if(gamepad.dpad_down){
+            if(speedMode){
+                if(speedModeLimiter - speedChange >= minSpeed){
+                    speedModeLimiter -= speedChange;
+                }
+            }else{
+                if(defaultSpeed - speedChange >= speedThreshold)
+                defaultSpeed -= speedChange;
+            }
+        } else if(gamepad.dpad_up){
+            if(speedMode){
+                if(speedModeLimiter + speedChange <= speedThreshold){
+                    speedModeLimiter += speedChange;
+                }
+            }else{
+                if(defaultSpeed + speedChange <= maxSpeed){
+                    defaultSpeed += speedChange;
+                }
+            }
+        }
+
+        //slow down mode
+        if(speedMode){
+            frontLeftPower *= speedModeLimiter;
+            backLeftPower *= speedModeLimiter;
+            frontRightPower *= speedModeLimiter;
+            backRightPower *= speedModeLimiter;
+        }else{
+            frontLeftPower *= defaultSpeed;
+            backLeftPower *= defaultSpeed;
+            frontRightPower *= defaultSpeed;
+            backRightPower *= defaultSpeed;
+        }
 
         motorFrontLeft.setPower(frontLeftPower);
         motorBackLeft.setPower(backLeftPower);
@@ -115,13 +143,25 @@ public class RobotCentricMechanumDrive {
         this.motorBackRight.setPower(bR);
     }
 
-    public void setSpeedLimiter(double speed) {
-        this.speedLimiter = speed;
+    public void setSpeedModeLimiter(double speed) {
+        this.speedModeLimiter = speed;
+    }
+    public void setSpeedChange(double limit){
+        this.speedChange = limit;
+    }
+    public void setDefaultSpeed(double defaultSpeed){
+        this.defaultSpeed = defaultSpeed;
+    }
+    public void setMaxSpeed(double maxSpeed){
+        this.maxSpeed = maxSpeed;
+    }
+    public void setMinSpeed(double minSpeed){
+        this.minSpeed = minSpeed;
+    }
+    public void setSpeedThreshold(double speedThreshold){
+        this.speedThreshold = speedThreshold;
     }
 
-    public void setSpeedFactorMultiplier(double multiplier) {
-        this.speedFactorMultiplier = multiplier;
-    }
 
     public void setModeWithEncoders() {
         // Set Drive to run with encoders.
