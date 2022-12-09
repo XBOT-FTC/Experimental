@@ -27,8 +27,8 @@ public class MechanumRobotCentric3231 extends LinearOpMode {
         drive.setSpeedModeLimiter(0.5); // set a the power limit to 0.5 (driver preference)
         drive.setDefaultSpeed(0.7);
         drive.setSpeedChange(0.25);
-        drive.setIncLim(1);
-        drive.setDecLim(0.25);
+        drive.setMaxSpeed(1);
+        drive.setMinSpeed(0.25);
         drive.setMidSpeed(0.5);
 
 
