@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -28,6 +27,9 @@ public class MechanumRobotCentric2939 extends LinearOpMode {
         drive.setSpeedModeLimiter(0.5); // set a the power limit to 1.0 (driver preference)
         drive.setDefaultSpeed(0.7);
         drive.setSpeedChange(0.25);
+        drive.setIncLim(1);
+        drive.setDecLim(0.25);
+        drive.setMidSpeed(0.5);
 
         // Slider
         slider.setManualSpeed(0.4, 0.25);

@@ -36,6 +36,9 @@ public class RobotCentricMechanumDrive {
     private double speedModeLimiter = 0;
     public double defaultSpeed = 0;
     public double speedChange = 0;
+    public double incLim = 0;
+    public double midSpeed = 0;
+    public double decLim = 0;
     public boolean speedMode = false;
 
 
@@ -71,6 +74,28 @@ public class RobotCentricMechanumDrive {
         double backLeftPower = (y - x + rx);
         double frontRightPower = (y - x - rx);
         double backRightPower = (y + x - rx);
+
+        if(gamepad.dpad_down){
+            if(speedMode){
+                if(speedModeLimiter - speedChange >= decLim ){
+                    speedModeLimiter -= speedChange;
+                }
+            }else{
+                if(defaultSpeed - speedChange >= midSpeed)
+                defaultSpeed -= speedChange;
+            }
+        } else if(gamepad.dpad_up){
+            if(speedMode){
+                if(speedModeLimiter + speedChange <= midSpeed){
+                    speedModeLimiter += speedChange;
+                }
+            }else{
+                if(defaultSpeed + speedChange <= incLim){
+                    defaultSpeed += speedChange;
+                }
+            }
+        }
+
         //slow down mode
         if(speedMode){
             frontLeftPower *= speedModeLimiter;
@@ -82,19 +107,6 @@ public class RobotCentricMechanumDrive {
             backLeftPower *= defaultSpeed;
             frontRightPower *= defaultSpeed;
             backRightPower *= defaultSpeed;
-        }
-        //dpad controls
-        if(gamepad.dpad_down){
-            frontLeftPower -= speedChange;
-            backLeftPower -= speedChange;
-            frontRightPower -= speedChange;
-            backRightPower -= speedChange;
-        }
-        if(gamepad.dpad_up){
-            frontLeftPower += speedChange;
-            backLeftPower += speedChange;
-            frontRightPower += speedChange;
-            backRightPower += speedChange;
         }
 
         motorFrontLeft.setPower(frontLeftPower);
@@ -139,6 +151,15 @@ public class RobotCentricMechanumDrive {
     }
     public void setDefaultSpeed(double defaultSpeed){
         this.defaultSpeed = defaultSpeed;
+    }
+    public void setIncLim(double incLim){
+        this.incLim = incLim;
+    }
+    public void setDecLim(double decLim){
+        this.decLim = decLim;
+    }
+    public void setMidSpeed(double midSpeed){
+        this.midSpeed = midSpeed;
     }
 
 
