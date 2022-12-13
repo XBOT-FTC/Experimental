@@ -2,10 +2,8 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
 
 
 import org.firstinspires.ftc.teamcode.lib.Grabber;
@@ -21,13 +19,18 @@ public class MechanumRobotCentric3231 extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, Direction.REVERSE);
         LinearSlider slider = new LinearSlider(hardwareMap.dcMotor.get(RobotConstants.SLIDE), Direction.REVERSE);
-        Grabber grabber = new Grabber(hardwareMap.servo.get(RobotConstants.GRABBER), Servo.Direction.FORWARD);
+        Grabber grabber = new Grabber(hardwareMap.servo.get(RobotConstants.GRABBER), Servo.Direction.REVERSE);
 
         // Initializations
 
         // Drive
-        drive.setSpeedLimiter(0.5); // set a the power limit to 0.5 (driver preference)
-        drive.setSpeedFactorMultiplier(1.0); // higher value = slower speed when pressing left_trigger
+        drive.setSpeedModeLimiter(0.5); // set a the power limit to 0.5 (driver preference)
+        drive.setDefaultSpeed(0.7);
+        drive.setSpeedChange(0.25);
+        drive.setMaxSpeed(1);
+        drive.setMinSpeed(0.25);
+        drive.setSpeedThreshold(0.5);
+
 
         // Slider
         slider.setManualSpeed(0.5, 0.5);

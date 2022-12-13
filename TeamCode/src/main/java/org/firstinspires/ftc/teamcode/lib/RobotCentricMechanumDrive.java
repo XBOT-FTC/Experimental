@@ -7,12 +7,9 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.LEFT_
 import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.RIGHT_STRAFE;
 import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.RIGHT_TURN;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -35,9 +32,15 @@ public class RobotCentricMechanumDrive {
     private double TICKS_PER_INCH;
     private double TICKS_PER_DEGREE;
 
-    // Utility members
-    private double speedLimiter = 0;
+    // Utility members.5
+    private double speedModeLimiter = 0;
+    public double defaultSpeed = 0;
+    public double speedChange = 0;
+    public double maxSpeed = 0;
+    public double speedThreshold = 0;
+    public double minSpeed = 0;
     public boolean speedMode = false;
+
 
     public RobotCentricMechanumDrive(HardwareMap hardwareMap, Direction motorFrontLeftDirection) throws InterruptedException {
         // Declare our motors
@@ -72,13 +75,39 @@ public class RobotCentricMechanumDrive {
         double frontRightPower = (y - x - rx);
         double backRightPower = (y + x - rx);
 
-        if(speedMode){
-            frontLeftPower *= speedLimiter;
-            backLeftPower *= speedLimiter;
-            frontRightPower *= speedLimiter;
-            backRightPower *= speedLimiter;
+        if(gamepad.dpad_down){
+            if(speedMode){
+                if(speedModeLimiter - speedChange >= minSpeed){
+                    speedModeLimiter -= speedChange;
+                }
+            }else{
+                if(defaultSpeed - speedChange >= speedThreshold)
+                defaultSpeed -= speedChange;
+            }
+        } else if(gamepad.dpad_up){
+            if(speedMode){
+                if(speedModeLimiter + speedChange <= speedThreshold){
+                    speedModeLimiter += speedChange;
+                }
+            }else{
+                if(defaultSpeed + speedChange <= maxSpeed){
+                    defaultSpeed += speedChange;
+                }
+            }
         }
 
+        //slow down mode
+        if(speedMode){
+            frontLeftPower *= speedModeLimiter;
+            backLeftPower *= speedModeLimiter;
+            frontRightPower *= speedModeLimiter;
+            backRightPower *= speedModeLimiter;
+        }else{
+            frontLeftPower *= defaultSpeed;
+            backLeftPower *= defaultSpeed;
+            frontRightPower *= defaultSpeed;
+            backRightPower *= defaultSpeed;
+        }
 
         motorFrontLeft.setPower(frontLeftPower);
         motorBackLeft.setPower(backLeftPower);
@@ -114,9 +143,25 @@ public class RobotCentricMechanumDrive {
         this.motorBackRight.setPower(bR);
     }
 
-    public void setSpeedLimiter(double speed) {
-        this.speedLimiter = speed;
+    public void setSpeedModeLimiter(double speed) {
+        this.speedModeLimiter = speed;
     }
+    public void setSpeedChange(double limit){
+        this.speedChange = limit;
+    }
+    public void setDefaultSpeed(double defaultSpeed){
+        this.defaultSpeed = defaultSpeed;
+    }
+    public void setMaxSpeed(double maxSpeed){
+        this.maxSpeed = maxSpeed;
+    }
+    public void setMinSpeed(double minSpeed){
+        this.minSpeed = minSpeed;
+    }
+    public void setSpeedThreshold(double speedThreshold){
+        this.speedThreshold = speedThreshold;
+    }
+
 
     public void setModeWithEncoders() {
         // Set Drive to run with encoders.
