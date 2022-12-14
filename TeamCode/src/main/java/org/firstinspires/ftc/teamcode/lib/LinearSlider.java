@@ -29,6 +29,8 @@ public class LinearSlider {
 
     private boolean encoderMode = false;
 
+    private double increase = 0;
+    private  double decrease = 0;
     public LinearSlider(DcMotor slideMotor, Direction direction) {
         this.slideMotor = slideMotor;
         this.slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -48,47 +50,23 @@ public class LinearSlider {
             this.encoderMode = false;
             telemetry.addLine("The trigger has been pressed. Manual mode.");
             this.slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            double forwardPower = gamepad.right_trigger;
-            double reversePower = gamepad.left_trigger;
-            double power = 0.0;
-            if (forwardPower != ZERO_POWER) {
-                power = forwardPower;
-                power = Range.clip(power, 0, maxIncrementSpeed);
-            } else if (reversePower != ZERO_POWER) {
-                power = reversePower * -1;
-                power = Range.clip(power, -maxDecrementSpeed, 0);
+            double rightTrigger = gamepad.right_trigger;
+            double leftTrigger = gamepad.left_trigger;
+            int targetPos = this.slideMotor.getCurrentPosition();
+            if (rightTrigger != ZERO_POWER) {
+                targetPos += increase;
+            } else if (leftTrigger != ZERO_POWER) {
+                targetPos -= decrease;
             }
-            // Safety limits
-            int position = slideMotor.getCurrentPosition();
-            if (position < 0 && power < 0) {
-                telemetry.addData(
-                        "WARNING:  Ignoring negative power command to slider because position is out of bounds low",
-                        position);
-                slideMotor.setPower(0);
-            } else if (position > this.maxManualPosition && power > 0) {
-                telemetry.addData(
-                        "WARNING:  Ignoring positive power command to slider because position is out of bounds high",
-                        position);
-                slideMotor.setPower(0);
-            } else {
-                // Hold the slider in place
-                if (power >= 0 && power < .15 && position > 10) {
-                    power = holdPositionMotorPower;
-                }
-                // Otherwise, set power based on trigger
-                slideMotor.setPower(power);
-            }
-        } else if (encoderMode) {
-            telemetry.addLine("Slide: In encoder mode, we are relying on encoders to stay afloat.");
-            // do nothing since encoder control are upholding power already.
-        } else {
-            telemetry.addLine("Slide: Not in encoder mode and no power from the trigger, set zero.");
-            slideMotor.setPower(0.0);
-        }
-        // The triggers are both at zero, so
+            slideMotor.setTargetPosition(targetPos);
 
         telemetry.addData("Slide Power is (w/ braking): ", slideMotor.getPower());
         telemetry.addData("Encoder Distance: ", slideMotor.getCurrentPosition());
+    }
+    }
+    public void setManualPos(double increase, double decrease){
+        this.increase = increase;
+        this.decrease = decrease;
     }
 
     public void setPosition(int ground, int small, int medium, int large) {
