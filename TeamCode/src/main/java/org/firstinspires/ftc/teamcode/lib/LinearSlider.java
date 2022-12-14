@@ -27,8 +27,6 @@ public class LinearSlider {
     private double maxDecrementSpeed = 0.0; // for moving via trigger
     private double autoSpeed = 0.0; // for moving w/ encoders
 
-    private boolean encoderMode = false;
-
     private double increase = 0;
     private  double decrease = 0;
     public LinearSlider(DcMotor slideMotor, Direction direction) {
@@ -36,7 +34,6 @@ public class LinearSlider {
         this.slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.slideMotor.setDirection(direction);
-        this.encoderMode = false;
     }
 
     public void slide(Gamepad gamepad, Telemetry telemetry) {
@@ -49,6 +46,7 @@ public class LinearSlider {
         if (gamepad.left_trigger != 0.0 || gamepad.right_trigger != 0.0) {
             telemetry.addLine("The trigger has been pressed. Manual mode.");
             this.slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            this.slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             double rightTrigger = gamepad.right_trigger;
             double leftTrigger = gamepad.left_trigger;
             int targetPos = this.slideMotor.getCurrentPosition();
@@ -58,6 +56,7 @@ public class LinearSlider {
                 targetPos -= decrease;
             }
             slideMotor.setTargetPosition(targetPos);
+            slideMotor.setPower(0.25);
 
         telemetry.addData("Slide Power is (w/ braking): ", slideMotor.getPower());
         telemetry.addData("Encoder Distance: ", slideMotor.getCurrentPosition());
@@ -121,7 +120,7 @@ public class LinearSlider {
                         break;
                     }
                 }
-                this.encoderMode = true;
+
             }
         }
     }
