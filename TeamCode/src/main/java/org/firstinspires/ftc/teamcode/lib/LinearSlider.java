@@ -47,6 +47,7 @@ public class LinearSlider {
     // Using left and right trigger to move the slider based on pressure:
     private void slideTrigger(Gamepad gamepad, Telemetry telemetry) {
         if (gamepad.left_trigger != 0.0 || gamepad.right_trigger != 0.0) {
+            this.encoderMode = false;
             telemetry.addLine("The trigger has been pressed. Manual mode.");
             this.slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             double rightTrigger = gamepad.right_trigger;
@@ -112,17 +113,12 @@ public class LinearSlider {
                 // Motor will run at the designated power until it reaches the position
                 slideMotor.setPower(autoSpeed);
 
-                // Wait until the motor runs to that position
-                while (slideMotor.isBusy()) {
-                    telemetry.addData("Linear Slide Distance: ", slideMotor.getCurrentPosition());
-                    telemetry.addData("Target: ", slideMotor.getTargetPosition());
-                    // If the operator tries moving the slide manually, disable the run to position.
-                    if (gamepad.left_trigger != 0.0 || gamepad.right_trigger != 0.0 || gamepad.start) {
-                        break;
-                    }
-                }
                 this.encoderMode = true;
             }
+        }
+        if(this.encoderMode) {
+            telemetry.addData("Linear Slide Distance: ", slideMotor.getCurrentPosition());
+            telemetry.addData("Target: ", slideMotor.getTargetPosition());
         }
     }
 
