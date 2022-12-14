@@ -41,6 +41,7 @@ public class RobotCentricMechanumDrive {
     public double speedThreshold = 0;
     public double minSpeed = 0;
     public boolean speedMode = false;
+    private boolean aIsPressed = false;
 
 
     public RobotCentricMechanumDrive(HardwareMap hardwareMap, Direction motorFrontLeftDirection) throws InterruptedException {
@@ -68,7 +69,12 @@ public class RobotCentricMechanumDrive {
         double rx = gamepad.right_stick_x;
 
         if(gamepad.a){
-            speedMode = !speedMode;
+            aIsPressed = True;
+        } else {
+            if(aIsPressed) {
+                aIsPressed = False;
+                speedMode = !speedMode;    
+            }
         }
 
         double frontLeftPower = (y + x + rx);
