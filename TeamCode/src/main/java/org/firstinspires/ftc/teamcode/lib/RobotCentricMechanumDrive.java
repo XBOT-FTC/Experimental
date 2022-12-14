@@ -27,6 +27,7 @@ public class RobotCentricMechanumDrive {
     private DcMotor motorBackLeft = null;
     private DcMotor motorFrontRight = null;
     private DcMotor motorBackRight = null;
+    private DcMotor speedModeLights = null;
 
     // Ticks measurement
     private double TICKS_PER_INCH;
@@ -49,7 +50,7 @@ public class RobotCentricMechanumDrive {
         motorBackLeft = hardwareMap.dcMotor.get(RobotConstants.BACK_LEFT);
         motorFrontRight = hardwareMap.dcMotor.get(RobotConstants.FRONT_RIGHT);
         motorBackRight = hardwareMap.dcMotor.get(RobotConstants.BACK_RIGHT);
-
+        speedModeLights = hardwareMap.dcMotor.get("lights");
         // Reverse the right side motors
         // Reverse left motors if you are using NeveRests
         // This works for both bots (2939 motorFrontLeftDirection == FORWARD, 3231 motorFrontLeftDirection == REVERSE)
@@ -81,8 +82,9 @@ public class RobotCentricMechanumDrive {
                     speedModeLimiter -= speedChange;
                 }
             }else{
-                if(defaultSpeed - speedChange >= speedThreshold)
-                defaultSpeed -= speedChange;
+                if(defaultSpeed - speedChange >= speedThreshold) {
+                    defaultSpeed -= speedChange;
+                }
             }
         } else if(gamepad.dpad_up){
             if(speedMode){
@@ -102,11 +104,16 @@ public class RobotCentricMechanumDrive {
             backLeftPower *= speedModeLimiter;
             frontRightPower *= speedModeLimiter;
             backRightPower *= speedModeLimiter;
+
+            speedModeLights.setPower(1.0);
+
         }else{
             frontLeftPower *= defaultSpeed;
             backLeftPower *= defaultSpeed;
             frontRightPower *= defaultSpeed;
             backRightPower *= defaultSpeed;
+
+            speedModeLights.setPower(0.0);
         }
 
         motorFrontLeft.setPower(frontLeftPower);
