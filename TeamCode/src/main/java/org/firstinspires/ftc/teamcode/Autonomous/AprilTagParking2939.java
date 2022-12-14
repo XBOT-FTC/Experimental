@@ -50,7 +50,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import java.util.ArrayList;
 
 @Autonomous(name= "Custom Sleeve Parking (2939)", group="Linear Opmode")
-public class AprilTagParking extends LinearOpMode {
+public class AprilTagParking2939 extends LinearOpMode {
 
     // TODO: EDIT after measuring
     static final double TICKS_PER_INCH = 50;
