@@ -49,7 +49,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
-@Autonomous(name= "Custom Sleeve Parking (20 pts)", group="Linear Opmode")
+@Autonomous(name= "Custom Sleeve Parking (3231)", group="Linear Opmode")
 public class AprilTagParking extends LinearOpMode {
 
     // TODO: EDIT after measuring
@@ -99,7 +99,7 @@ public class AprilTagParking extends LinearOpMode {
         });
 
         // Initialize the robot
-        RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, DcMotorSimple.Direction.FORWARD);
+        RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, DcMotorSimple.Direction.REVERSE);
         drive.setTicks(TICKS_PER_INCH, TICKS_PER_INCH);
         // whereas 3231 wants
         // RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, DcMotorSimple.Direction.REVERSE);
@@ -186,18 +186,18 @@ public class AprilTagParking extends LinearOpMode {
             if (tagOfInterest.id == LEFT) {
                 // Drive to Position #1 (Left) w/ Encoders
             // TODO:  This is the version for 2939.
-                drive.moveLinear(FORWARD, 16, 0.25, telemetry);
+                drive.moveLinear(FORWARD, 24, 0.25, telemetry);
                 drive.strafe(LEFT_STRAFE, 26, 0.25, telemetry);
             } else if (tagOfInterest.id == MIDDLE) {
                 // Drive to Position #2 (Middle) w/ Encoders
-                drive.moveLinear(FORWARD, 16, 0.25, telemetry);
+                drive.moveLinear(FORWARD, 24, 0.25, telemetry);
             } else if (tagOfInterest.id == RIGHT) {
                 // Drive to Position #3 (Right) w/ Encoders
-                drive.moveLinear(FORWARD, 16, 0.25, telemetry);
+                drive.moveLinear(FORWARD, 24, 0.25, telemetry);
                 drive.strafe(RIGHT_STRAFE, 26, 0.25, telemetry);
             } else {
                 // Somehow we got another tag.. Drive to Position #2 (Middle) w/ one third chance.
-                drive.moveLinear(FORWARD, 16, 0.25, telemetry);
+                drive.moveLinear(FORWARD, 24, 0.25, telemetry);
             }
         }
     }
