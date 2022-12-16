@@ -69,10 +69,13 @@ public class RobotCentricMechanumDrive {
         double rx = gamepad.right_stick_x;
 
         if(gamepad.a){
-            aIsPressed = True;
+            aIsPressed = true;
+//            telemetry.addData("Path 1", gamepad.a);
         } else {
+//            telemetry.addData("Path 2", gamepad.a);
             if(aIsPressed) {
-                aIsPressed = False;
+//                telemetry.addData("Path 2.1", gamepad.a);
+                aIsPressed = false;
                 speedMode = !speedMode;    
             }
         }
