@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.lib;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -23,18 +21,17 @@ public class LinearSlider {
     // Idle power For 3231, .15 works well when the bot batter is 8V at rest
     private double holdPositionMotorPower = .02;
 
-    private double maxIncrementSpeed = 0.0; // for moving via trigger
-    private double maxDecrementSpeed = 0.0; // for moving via trigger
+    private double incrementSpeed = 0.0; // for moving via trigger
+    private double decrementSpeed = 0.0; // for moving via trigger
     private double autoSpeed = 0.0; // for moving w/ encoders
 
-    private boolean encoderMode = false;
-
+    private double increase = 0;
+    private  double decrease = 0;
     public LinearSlider(DcMotor slideMotor, Direction direction) {
         this.slideMotor = slideMotor;
         this.slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.slideMotor.setDirection(direction);
-        this.encoderMode = false;
     }
 
     public void slide(Gamepad gamepad, Telemetry telemetry) {
@@ -45,50 +42,35 @@ public class LinearSlider {
     // Using left and right trigger to move the slider based on pressure:
     private void slideTrigger(Gamepad gamepad, Telemetry telemetry) {
         if (gamepad.left_trigger != 0.0 || gamepad.right_trigger != 0.0) {
-            this.encoderMode = false;
             telemetry.addLine("The trigger has been pressed. Manual mode.");
             this.slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            double forwardPower = gamepad.right_trigger;
-            double reversePower = gamepad.left_trigger;
-            double power = 0.0;
-            if (forwardPower != ZERO_POWER) {
-                power = forwardPower;
-                power = Range.clip(power, 0, maxIncrementSpeed);
-            } else if (reversePower != ZERO_POWER) {
-                power = reversePower * -1;
-                power = Range.clip(power, -maxDecrementSpeed, 0);
-            }
-            // Safety limits
-            int position = slideMotor.getCurrentPosition();
-            if (position < 0 && power < 0) {
-                telemetry.addData(
-                        "WARNING:  Ignoring negative power command to slider because position is out of bounds low",
-                        position);
-                slideMotor.setPower(0);
-            } else if (position > this.maxManualPosition && power > 0) {
-                telemetry.addData(
-                        "WARNING:  Ignoring positive power command to slider because position is out of bounds high",
-                        position);
-                slideMotor.setPower(0);
-            } else {
-                // Hold the slider in place
-                if (power >= 0 && power < .15 && position > 10) {
-                    power = holdPositionMotorPower;
+            this.slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            double rightTrigger = gamepad.right_trigger;
+            double leftTrigger = gamepad.left_trigger;
+            double power = 0;
+            int targetPos = this.slideMotor.getCurrentPosition();
+            if (rightTrigger != ZERO_POWER) {
+                targetPos += increase;
+                power = incrementSpeed;
+                if(targetPos > maxManualPosition){
+                    targetPos = maxManualPosition;
                 }
-                // Otherwise, set power based on trigger
-                slideMotor.setPower(power);
+            } else if (leftTrigger != ZERO_POWER) {
+                targetPos -= decrease;
+                power = decrementSpeed;
+                if(targetPos < 0){
+                    targetPos = 0;
+                }
             }
-        } else if (encoderMode) {
-            telemetry.addLine("Slide: In encoder mode, we are relying on encoders to stay afloat.");
-            // do nothing since encoder control are upholding power already.
-        } else {
-            telemetry.addLine("Slide: Not in encoder mode and no power from the trigger, set zero.");
-            slideMotor.setPower(0.0);
-        }
-        // The triggers are both at zero, so
-
+            slideMotor.setTargetPosition(targetPos);
+            slideMotor.setPower(power);
         telemetry.addData("Slide Power is (w/ braking): ", slideMotor.getPower());
         telemetry.addData("Encoder Distance: ", slideMotor.getCurrentPosition());
+    }
+    }
+    public void setManualPos(double increase, double decrease){
+        this.increase = increase;
+        this.decrease = decrease;
     }
 
     public void setPosition(int ground, int small, int medium, int large) {
@@ -102,8 +84,8 @@ public class LinearSlider {
         if (increasing > 1 || increasing < 0 || decreasing > 1 || decreasing < 0) {
             throw new RuntimeException("Slider max speed must be between 0 and 1");
         }
-        this.maxIncrementSpeed = increasing;
-        this.maxDecrementSpeed = decreasing;
+        this.incrementSpeed = increasing;
+        this.decrementSpeed = decreasing;
     }
 
     public void setMaxManualPosition(int maxManualPosition) {
@@ -135,13 +117,11 @@ public class LinearSlider {
                 // Motor will run at the designated power until it reaches the position
                 slideMotor.setPower(autoSpeed);
 
-                this.encoderMode = true;
             }
         }
-        if(this.encoderMode) {
             telemetry.addData("Linear Slide Distance: ", slideMotor.getCurrentPosition());
             telemetry.addData("Target: ", slideMotor.getTargetPosition());
-        }
+
     }
 
 }

@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.RobotConstants;
 import org.firstinspires.ftc.teamcode.lib.Grabber;
+import org.firstinspires.ftc.teamcode.lib.GrabberSensor;
 import org.firstinspires.ftc.teamcode.lib.LinearSlider;
 import org.firstinspires.ftc.teamcode.lib.RobotCentricMechanumDrive;
 
@@ -19,6 +20,7 @@ public class MechanumRobotCentric2939 extends LinearOpMode {
         RobotCentricMechanumDrive drive = new RobotCentricMechanumDrive(hardwareMap, Direction.FORWARD);
         LinearSlider slider = new LinearSlider(hardwareMap.dcMotor.get(RobotConstants.SLIDE), Direction.REVERSE);
         Grabber grabber = new Grabber(hardwareMap.servo.get(RobotConstants.GRABBER), Servo.Direction.REVERSE);
+        GrabberSensor sensor = new GrabberSensor(hardwareMap.touchSensor.get(RobotConstants.TOUCH_SENSOR), hardwareMap.dcMotor.get(RobotConstants.LIGHT_1));
 
 
         // Initializations:
@@ -32,10 +34,12 @@ public class MechanumRobotCentric2939 extends LinearOpMode {
         drive.setSpeedThreshold(0.5);
 
         // Slider
-        slider.setManualSpeed(0.4, 0.25);
+        slider.setManualSpeed(0.7, 0.5);
+        slider.setManualPos(25,25);
+        slider.setMaxManualPosition(4600);
+
         slider.setAutoSpeed(0.5);
         slider.setPosition(600,2200, 3400, 4600);
-        slider.setMaxManualPosition(4600);
 
         // Grabber
         grabber.setMaxPosition(0.6);
@@ -47,6 +51,7 @@ public class MechanumRobotCentric2939 extends LinearOpMode {
             drive.drive(gamepad1, telemetry);
             slider.slide(gamepad2, telemetry);
             grabber.grab(gamepad2, telemetry);
+            sensor.sense(telemetry);
             telemetry.update();
         }
     }
