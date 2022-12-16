@@ -132,7 +132,7 @@ public class RobotCentricMechanumDrive {
 
         telemetry.addData("Actual", "%7d : %7d   %7d : %7d",
                 motorFrontLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition(),
-                motorBackLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition());
+                motorBackLeft.getCurrentPosition(), motorBackRight.getCurrentPosition());
 
         telemetry.addData("Calculated Motor Power", "fL: %.3f - fR: %.3f - bL: %.3f - bR: %.3f",
                 frontLeftPower, frontRightPower,
@@ -140,11 +140,11 @@ public class RobotCentricMechanumDrive {
 
         telemetry.addData("Actual Motor Power", "fL: %.3f - fR: %.3f - bL: %.3f - bR: %.3f",
                 motorFrontLeft.getPower(), motorFrontRight.getPower(),
-                motorBackLeft.getPower(), motorFrontRight.getPower());
+                motorBackLeft.getPower(), motorBackRight.getPower());
 
         telemetry.addData("Encoder Values", "fL: %7d - fR: %7d - bL: %7d - bR: %7d",
                 motorFrontLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition(),
-                motorBackLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition());
+                motorBackLeft.getCurrentPosition(), motorBackRight.getCurrentPosition());
     }
 
     public void setTicks(double perInch, double perDegree) {
