@@ -51,7 +51,7 @@ public class RobotCentricMechanumDrive {
         motorBackLeft = hardwareMap.dcMotor.get(RobotConstants.BACK_LEFT);
         motorFrontRight = hardwareMap.dcMotor.get(RobotConstants.FRONT_RIGHT);
         motorBackRight = hardwareMap.dcMotor.get(RobotConstants.BACK_RIGHT);
-        speedModeLights = hardwareMap.dcMotor.get("lights");
+        speedModeLights = hardwareMap.dcMotor.get(RobotConstants.LIGHT_1);
         // Reverse the right side motors
         // Reverse left motors if you are using NeveRests
         // This works for both bots (2939 motorFrontLeftDirection == FORWARD, 3231 motorFrontLeftDirection == REVERSE)
