@@ -14,6 +14,9 @@ public class RobotConstants {
     // Operating Hardware
     public static final String SLIDE = "linearSlide";
     public static final String GRABBER = "grabber";
+    public static final String LIGHT_1 = "light_1";
+    public static final String TOUCH_SENSOR = "touch_sensor";
+
 
     // Autonomous Drive Constants (AprilTags)
 
