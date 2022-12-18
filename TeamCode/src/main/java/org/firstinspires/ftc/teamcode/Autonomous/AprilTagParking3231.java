@@ -53,6 +53,13 @@ import java.util.ArrayList;
 @Autonomous(name= "Custom Sleeve Parking (3231)", group="Linear Opmode")
 public class AprilTagParking3231 extends LinearOpMode {
 
+    double fx = 578.272;
+    double fy = 578.272;
+    double cx = 402.145;
+    double cy = 221.506;
+
+    double tagsize = 0.166;
+
     static final double TICKS_PER_INCH = 50;
     static final double TICKS_PER_DEGREE = 50;
 
@@ -68,18 +75,35 @@ public class AprilTagParking3231 extends LinearOpMode {
 
         // Initialize camera
         telemetry.setMsTransmissionInterval(50);
-        AprilTagsCamera camera = new AprilTagsCamera();
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        OpenCvCamera camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        AprilTagDetectionPipeline aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
+
+        camera.setPipeline(aprilTagDetectionPipeline);
+        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                camera.startStreaming(800, 448, OpenCvCameraRotation.UPRIGHT);
+            }
+
+            @Override
+            public void onError(int errorCode) {
+
+            }
+        });
+
+        AprilTagsCamera aprilTagsCamera = new AprilTagsCamera(aprilTagDetectionPipeline);
 
         AprilTagDetection tagOfInterest = null;
         while (!isStarted() && !isStopRequested()) {
-            tagOfInterest = camera.detectTag(telemetry);
+            tagOfInterest = aprilTagsCamera.detectTag(telemetry);
         }
 
         waitForStart();
-        camera.updateTelemetry(telemetry);
+        aprilTagsCamera.updateTelemetry(telemetry);
 
         // Retrieve the position
-        int position = camera.getPosition(tagOfInterest);
+        int position = aprilTagsCamera.getPosition(tagOfInterest);
         telemetry.addLine("We are heading towards position #" + position + "!");
         switch (position) {
             case 1:
