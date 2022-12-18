@@ -108,20 +108,21 @@ public class AprilTagParking2939 extends LinearOpMode {
         switch (position) {
             case 1:
                 // Position #1 (Left)
-                drive.moveLinear(FORWARD, 16, 0.25, telemetry);
+                drive.moveLinear(FORWARD, 26, 0.25, telemetry);
                 drive.strafe(LEFT_STRAFE, 26, 0.25, telemetry);
                 break;
             case 2:
                 // Position #2 (Middle)
-                drive.moveLinear(FORWARD, 16, 0.25, telemetry);
+                drive.moveLinear(FORWARD, 26, 0.25, telemetry);
                 break;
             case 3:
                 // Position #3 (Right)
-                drive.moveLinear(FORWARD, 16, 0.25, telemetry);
+                drive.moveLinear(FORWARD, 26, 0.25, telemetry);
                 drive.strafe(RIGHT_STRAFE, 26, 0.25, telemetry);
                 break;
             default:
                 // Tag is not found
+                drive.moveLinear(FORWARD, 26, 0.25, telemetry);
                 telemetry.addLine("Tag was not found.");
         }
         telemetry.update();

@@ -34,8 +34,8 @@ public class MechanumRobotCentric2939 extends LinearOpMode {
         drive.setSpeedThreshold(0.5);
 
         // Slider
-        slider.setManualSpeed(0.7, 0.5);
-        slider.setManualPos(25,25);
+        slider.setManualSpeed(1.0, 0.5);
+        slider.setManualPos(250,250);
         slider.setMaxManualPosition(4600);
 
         slider.setAutoSpeed(0.5);
