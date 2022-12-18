@@ -10,8 +10,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Grabber {
 
-    private Servo grabberMotor = null;
-    private double maxPosition;
+    public Servo grabberMotor = null;
+    public double maxPosition;
 
     public Grabber(Servo grabberMotor, Direction direction) {
         this.grabberMotor = grabberMotor;

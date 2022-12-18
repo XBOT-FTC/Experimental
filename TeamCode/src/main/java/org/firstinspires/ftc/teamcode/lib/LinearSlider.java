@@ -10,7 +10,7 @@ public class LinearSlider {
 
     private final double ZERO_POWER = 0.0;
 
-    private DcMotor slideMotor = null;
+    public DcMotor slideMotor = null;
 
     private int groundJunctionPosition = 0;
     private int smallPolePosition = 0;
