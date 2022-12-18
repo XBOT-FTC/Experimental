@@ -12,7 +12,6 @@ import org.firstinspires.ftc.teamcode.lib.GrabberSensor;
 import org.firstinspires.ftc.teamcode.lib.LinearSlider;
 import org.firstinspires.ftc.teamcode.lib.RobotCentricMechanumDrive;
 
-@Disabled
 @TeleOp(name="MD: Robot Centric (2939)", group="Linear Opmode")
 public class MechanumRobotCentric2939 extends LinearOpMode {
 

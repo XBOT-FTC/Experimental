@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.RobotConstants;
 import org.firstinspires.ftc.teamcode.lib.RobotCentricMechanumDrive;
 import org.firstinspires.ftc.teamcode.lib.LinearSlider;
 
+@Disabled
 @TeleOp(name="MD: Robot Centric (3231)", group="Linear Opmode")
 public class MechanumRobotCentric3231 extends LinearOpMode {
 
