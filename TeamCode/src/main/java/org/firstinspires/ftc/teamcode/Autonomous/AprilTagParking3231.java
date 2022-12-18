@@ -122,6 +122,7 @@ public class AprilTagParking3231 extends LinearOpMode {
                 break;
             default:
                 // Tag is not found
+                drive.moveLinear(FORWARD, 24, 0.25, telemetry);
                 telemetry.addLine("Tag was not found.");
         }
         telemetry.update();
