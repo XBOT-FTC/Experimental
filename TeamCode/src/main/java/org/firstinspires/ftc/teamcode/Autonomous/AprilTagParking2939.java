@@ -33,6 +33,7 @@ import static org.firstinspires.ftc.teamcode.RobotConstants.Commands.DRIVE.RIGHT
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -49,9 +50,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-
-import java.util.ArrayList;
-
+@Disabled
 @Autonomous(name= "Custom Sleeve Parking (2939)", group="Linear Opmode")
 public class AprilTagParking2939 extends LinearOpMode {
 
